@@ -250,6 +250,2283 @@
       color: var(--text-muted);
       line-height: 1.65;
     }
+    .about-note + .about-note {
+      margin-top: 4px;
+    }
+    .about-note-text p + p {
+      margin-top: 0.75em;
+    }
+    .about-note-text ul {
+      margin: 0.55em 0 0;
+      padding-left: 1.25em;
+    }
+    .about-note-text li + li {
+      margin-top: 0.35em;
+    }
+    .about-note-text code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88em;
+      background: rgba(180, 32, 117, 0.08);
+      padding: 0.12em 0.35em;
+      border-radius: 4px;
+    }
+
+    /* ── Browse / filters (UI TBD) ── */
+    .filters-section {
+      padding: 28px 24px 8px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .filters-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filters-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    .filters-coming-soon {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      max-width: 640px;
+      line-height: 1.55;
+      margin-bottom: 6px;
+    }
+    .filter-count {
+      font-size: 0.75rem;
+      background: var(--c6);
+      color: #fff;
+      border-radius: 999px;
+      padding: 2px 10px;
+      font-weight: 600;
+      transition: background 0.25s ease;
+    }
+    .filter-count.is-on {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+    }
+    .filter-reset {
+      background: none;
+      border: none;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      transition: color var(--transition);
+    }
+    .filter-reset:hover { color: var(--c1); }
+
+    .btn-filter-trigger {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    /* ── Author filter drawer (left panel) ── */
+    .author-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 280;
+      background: rgba(40, 28, 32, 0.38);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+    }
+    .author-drawer-backdrop.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .author-drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 290;
+      width: min(360px, 92vw);
+      height: 100%;
+      height: 100dvh;
+      max-height: 100vh;
+      background: var(--bg);
+      border-right: 1.5px solid var(--border);
+      box-shadow: 12px 0 40px rgba(80, 40, 60, 0.18);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-105%);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .author-drawer.is-open {
+      transform: translateX(0);
+    }
+    body.author-drawer-open {
+      overflow: hidden;
+    }
+    .author-drawer-top {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 16px 12px;
+      padding-top: max(18px, env(safe-area-inset-top));
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .author-drawer-top h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .author-drawer-close {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 10px;
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    .author-drawer-close:hover {
+      background: var(--border);
+      color: var(--c6);
+    }
+    .author-drawer-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 16px 20px;
+    }
+    .author-drawer-foot {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      border-top: 1.5px solid var(--border);
+      background: #fff;
+    }
+
+    .author-filter-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .author-filter-tags .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .author-filter-tags .tag:hover { border-color: var(--accent); color: var(--c6); }
+    .author-filter-tags .tag.active {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(180,32,117,0.25);
+    }
+
+    /* ── Results bar ── */
+    .results-bar {
+      max-width: 1100px;
+      margin: 18px auto 0;
+      padding: 0 24px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .results-bar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-start;
+    }
+    .results-count { font-size: 0.85rem; color: var(--text-muted); }
+    .results-count strong { color: var(--text); }
+    .last-updated {
+      font-size: 0.78rem;
+      color: var(--text-light);
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    /* ── Back to top ── */
+    .back-to-top {
+      position: fixed;
+      bottom: max(22px, env(safe-area-inset-bottom));
+      right: max(18px, env(safe-area-inset-right));
+      z-index: 150;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      color: #fff;
+      font-size: 1.35rem;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(180, 32, 117, 0.35);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(14px);
+      transition: opacity 0.28s ease, visibility 0.28s ease, transform 0.28s ease;
+    }
+    .back-to-top.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .back-to-top:hover {
+      filter: brightness(1.08);
+    }
+    .back-to-top:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    .tweet-embed-pending {
+      min-height: 120px;
+      background: linear-gradient(180deg, #faf8f6 0%, #f5f0ec 100%);
+      border-radius: 8px;
+    }
+
+    /* ── Tweet Grid ── */
+    .tweets-grid {
+      max-width: 1100px;
+      margin: 20px auto 0;
+      padding: 0 24px 12px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .tweet-card {
+      background: #fff;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+    .tweet-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(180,32,117,0.13);
+      border-color: var(--accent);
+    }
+    .tweet-card::before {
+      content: '';
+      display: block;
+      height: 4px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--c2), var(--c5));
+    }
+    .tweet-card.tweet-card--pick::before {
+      background: linear-gradient(90deg, #e6a800, #f48a32, #c46ea1);
+    }
+
+    .tweet-card-meta {
+      padding: 10px 14px 6px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+      justify-content: space-between;
+    }
+    .tweet-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px 8px;
+      overflow: visible;
+    }
+    .tweet-card-actions button {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .tweet-card-actions button:hover {
+      border-color: var(--accent);
+      transform: scale(1.05);
+    }
+    .tweet-card-actions button:focus-visible {
+      outline: 3px solid rgba(209, 104, 163, 0.45);
+      outline-offset: 1px;
+    }
+    .action-want.is-on {
+      background: #fff0f4;
+      border-color: var(--c6);
+      color: var(--c6);
+    }
+    .action-read.is-on {
+      background: #e8f8ef;
+      border-color: #2d8a54;
+      color: #1e6b42;
+    }
+
+    .action-btn-wrap {
+      position: relative;
+      display: inline-flex;
+      vertical-align: middle;
+    }
+    .action-tooltip {
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 8px);
+      bottom: auto;
+      transform: translateX(-50%) translateY(-4px);
+      white-space: nowrap;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 20;
+      transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+      transition-delay: 0s;
+    }
+    .action-btn-wrap:hover .action-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+      transition-delay: 0.5s;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .action-tooltip {
+        transition-duration: 0.01ms;
+      }
+      .action-btn-wrap:hover .action-tooltip {
+        transition-delay: 0.01ms;
+      }
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 8px 24px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .pagination[hidden] {
+      display: none !important;
+    }
+    .pagination-btn {
+      min-width: 40px;
+      height: 40px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--c6);
+      background: var(--bg2);
+    }
+    .pagination-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .pagination-btn.is-current {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      border-color: transparent;
+      color: #fff;
+    }
+    .pagination-btn.pagination-btn--edge {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .reading-filter-row {
+      max-width: 1100px;
+      margin: 10px auto 0;
+      padding: 0 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .reading-filter-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+    .reading-filter-pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all var(--transition);
+    }
+    .reading-filter-pill:hover {
+      border-color: var(--accent);
+      color: var(--c6);
+    }
+    .reading-filter-pill.active {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .reading-local-toast {
+      position: fixed;
+      z-index: 9998;
+      left: 50%;
+      bottom: max(20px, env(safe-area-inset-bottom, 0px));
+      transform: translate(-50%, 10px);
+      max-width: min(22rem, calc(100vw - 32px));
+      margin: 0;
+      padding: 7px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.35;
+      text-align: center;
+      color: var(--text-muted);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .reading-local-toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+    .reading-local-toast[hidden] {
+      display: none !important;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reading-local-toast {
+        transition-duration: 0.01ms;
+      }
+    }
+    .tweet-author {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--c6);
+      text-decoration: none;
+    }
+    .tweet-author:hover { text-decoration: underline; }
+    .tweet-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: flex-end;
+      flex: 1;
+    }
+    .tweet-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .tweet-badge--mini {
+      background: #f0f4ff;
+      color: #3d4a8f;
+      border: 1px solid #d0daf0;
+    }
+    .tweet-badge--pick {
+      background: linear-gradient(135deg, #fff3d6, #ffe08a);
+      color: #5c4810;
+      border: 1px solid #e8c96a;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.72rem;
+    }
+
+    .tweet-embed-wrap {
+      padding: 4px 10px 10px;
+      flex: 1;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+    }
+    .empty-state .empty-icon { font-size: 3rem; display: block; margin-bottom: 14px; }
+    .empty-state h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    /* ── Add AU: plain intent link (no form) ── */
+    .notify-archive {
+      max-width: 700px;
+      margin: 0 auto 48px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .notify-archive-text {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* ── Scroll-in animations ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .tweets-grid { grid-template-columns: 1fr; gap: 16px; }
+      .pagination { padding-left: 16px; padding-right: 16px; }
+      .hero { padding: 40px 16px 28px; }
+      .about-note { padding: 0 16px 12px; }
+      .about-note-inner { padding: 16px 18px; }
+      .divider { margin: 0 16px; }
+      .btn-filter-trigger {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Flag stripe -->
+<div class="flag-bar">
+  <span></span><span></span><span></span><span></span>
+  <span></span><span></span><span></span>
+</div>
+
+<div class="lang-switch" role="group" aria-label="Idioma">
+  <button type="button" class="lang-switch-btn is-active" id="lang-pt" aria-pressed="true">PT</button>
+  <button type="button" class="lang-switch-btn" id="lang-en" aria-pressed="false">EN</button>
+</div>
+
+<!-- Hero -->
+<header class="hero">
+  <p class="hero-eyebrow" data-i18n="heroEyebrow">✦ Arquivo de AU's no Twitter ✦</p>
+  <h1><span class="gradient-text">Loquinha AU's</span></h1>
+  <p class="hero-sub" data-i18n="heroSub">Uma galeria de threads de AU's Loquinha no Twitter.</p>
+  <div class="cta-bar">
+    <a href="#notify-archive" class="btn btn-primary">
+      <span>✦</span> <span data-i18n="ctaAddArchive">Adicionar um AU ao arquivo</span>
+    </a>
+    <a href="#tweets" class="btn btn-ghost" data-i18n="ctaBrowseTweets">Ver tweets ↓</a>
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<!-- Browse -->
+<section class="filters-section" id="tweets">
+  <div class="filters-header">
+    <h2 data-i18n="browseHeading">Explorar</h2>
+    <button type="button" class="btn btn-ghost btn-filter-trigger" id="author-drawer-open"
+      aria-expanded="false" aria-controls="author-drawer">
+      <span id="author-filter-open-label">Filtrar autores</span>
+    </button>
+  </div>
+  <p class="filters-coming-soon" data-i18n="filtersComingSoon" data-i18n-html="1">
+    <strong>Em breve:</strong> filtros por trope / universo. Use <strong>Filtrar autores</strong> para restringir pelo @ no X.
+  </p>
+</section>
+
+<!-- Author filter: left drawer (opens from Browse) -->
+<div class="author-drawer-backdrop" id="author-drawer-backdrop" aria-hidden="true"></div>
+<aside class="author-drawer" id="author-drawer" role="dialog" aria-modal="true"
+  aria-labelledby="author-drawer-title" aria-hidden="true" tabindex="-1">
+  <div class="author-drawer-top">
+    <h3 id="author-drawer-title" data-i18n="drawerTitle">Filtrar por autora(s)</h3>
+    <button type="button" class="author-drawer-close" id="author-drawer-close" aria-label="Fechar">×</button>
+    </div>
+  <div class="author-drawer-scroll">
+    <div class="author-filter-tags" id="author-filter-tags" role="group" aria-label="Autores"></div>
+    </div>
+  <div class="author-drawer-foot">
+    <span class="filter-count" id="author-filter-count">Todas</span>
+    <button type="button" class="filter-reset" id="author-filter-clear" data-i18n="clearAuthors">Limpar autores</button>
+    </div>
+</aside>
+
+<!-- Results bar -->
+<div class="results-bar">
+  <div class="results-bar-col">
+    <p class="results-count" id="results-count"><strong>0</strong> tweets</p>
+    <p class="last-updated" id="last-updated-line" aria-live="polite"></p>
+  </div>
+</div>
+
+<p class="reading-local-toast" id="reading-local-toast" role="status" aria-live="polite" hidden data-i18n="readingLocalToastText"></p>
+
+<div class="reading-filter-row" id="reading-filter-row" role="group" aria-label="">
+  <span class="reading-filter-label" id="reading-filter-label" data-i18n="readingFilterLabel"></span>
+  <button type="button" class="reading-filter-pill active" data-reading="all" data-i18n="readingFilterAll"></button>
+  <button type="button" class="reading-filter-pill" data-reading="want" data-i18n="readingFilterWant"></button>
+  <button type="button" class="reading-filter-pill" data-reading="read" data-i18n="readingFilterRead"></button>
+  <button type="button" class="reading-filter-pill" data-reading="unread" data-i18n="readingFilterUnread"></button>
+</div>
+
+<button type="button" class="back-to-top" id="back-to-top" hidden aria-label="Voltar ao topo">↑</button>
+
+<!-- Tweet grid -->
+<main class="tweets-grid" id="tweets-grid"></main>
+
+<nav class="pagination" id="pagination" hidden aria-label="Paginação"></nav>
+
+<div class="divider" style="margin-bottom:48px;"></div>
+
+<!-- Add AU: single twitter.com/intent/tweet link -->
+<section class="notify-archive" id="notify-archive">
+  <p class="notify-archive-text" data-i18n="notifyText">Falta um AU nesta página? Manda um tweet pra slappepolsen :)</p>
+  <a class="btn btn-primary" id="notify-intent-link" target="_blank" rel="noopener noreferrer" href="#">
+    <span data-i18n="notifyBtn">🐦 Tweetar para adicionar um AU</span>
+  </a>
+</section>
+
+<section class="about-note" aria-labelledby="about-note-title">
+  <div class="about-note-inner">
+    <h2 class="about-note-title" id="about-note-title" data-i18n="aboutNoteTitle">Por que este arquivo</h2>
+    <p class="about-note-text" data-i18n="aboutNoteBody">Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo, pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets, e quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AUs do Twitter :)</p>
+  </div>
+</section>
+
+<section class="about-note" aria-labelledby="transparency-note-title">
+  <div class="about-note-inner">
+    <h2 class="about-note-title" id="transparency-note-title" data-i18n="transparencyNoteTitle">Nota de transparência</h2>
+    <div class="about-note-text" data-i18n="transparencyNoteBody" data-i18n-html="1"><p>Todas as AU's são bem-vindas. Se a sua AU não está aqui, me manda um tweet.</p><p>A primeira grande inclusão partiu de AU's completas, não de mini-AU's, mas agora estou incluindo todo tipo de AU. O único requisito é que esteja no Twitter como uma thread típica de AU, não como link para um site de fanfic tipo AO3 ou Wattpad.</p><p>Em geral, uma AU chega ao meu radar de três jeitos:</p><ul><li>o algoritmo</li><li>você, a autora ou outra pessoa me mandando o link</li><li>busca por <code>"au" "loquinha"</code> no Twitter</li></ul></div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p data-i18n="footerText">feito com 🧡🩷 para as lésbicas por slappepolsen.</p>
+</footer>
+
+<script>
+/* ════════════════════════════════
+   UI language: default pt-BR, toggle EN (localStorage: loquinha-lang)
+   ════════════════════════════════ */
+const LANG_STORAGE = "loquinha-lang";
+
+/** Bump this ISO date (YYYY-MM-DD) when you change the tweet list. */
+const ARCHIVE_LAST_UPDATED = "2026-04-20";
+
+const MESSAGES = {
+  pt: {
+    pageTitle: "Loquinha AU's ❤️🧡🤍🩷",
+    heroEyebrow: "✦ Arquivo de AUs no Twitter ✦",
+    heroSub: "Uma galeria de threads de AU's Loquinha no Twitter.",
+    aboutNoteTitle: "Por que este arquivo",
+    aboutNoteBody:
+      "Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo, pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets, e quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AUs do Twitter :)",
+    transparencyNoteTitle: "Nota de transparência",
+    transparencyNoteBody: `<p>Todas as AUs são bem-vindas. Se a sua AU não está aqui, me manda um tweet.</p><p>A primeira grande inclusão partiu de AUs completas, não de mini-AUs, mas agora estou incluindo todo tipo de AU. O único requisito é que esteja no Twitter como uma thread típica de AU, não como link para um site de fanfic tipo AO3 ou Wattpad.</p><p>Em geral, uma AU chega ao meu radar de três jeitos:</p><ul><li>o algoritmo</li><li>você, a autora ou outra pessoa me mandando o link</li><li>busca por <code>"au" "loquinha"</code> no Twitter</li></ul>`,
+    ctaAddArchive: "Adicionar um AU ao arquivo",
+    ctaBrowseTweets: "Ver tweets ↓",
+    browseHeading: "Explorar",
+    filtersComingSoon:
+      "<strong>Em breve:</strong> filtros por trope / universo. Use <strong>Filtrar autores</strong> para restringir pelo @ no X.",
+    drawerTitle: "Filtrar por autora/autor",
+    drawerCloseAria: "Fechar painel",
+    drawerAuthorsAria: "Autores",
+    clearAuthors: "Limpar autores",
+    filterAuthors: "Filtrar autores",
+    filterAllAuthors: "Todas",
+    filterOneAuthor: "1 perfil",
+    filterNAuthors: "{n} perfis",
+    resultsOne: "<strong>{n}</strong> tweet exibido",
+    resultsMany: "<strong>{n}</strong> tweets exibidos",
+    emptyNoTweetsTitle: "Ainda não há tweets no arquivo",
+    emptyNoTweetsLink: "Sugerir um para incluir",
+    emptyFilterTitle: "Nenhum tweet para essa seleção",
+    emptyFilterClear: "Limpar autores",
+    emptyVisibleTitle: "Nenhum tweet corresponde aos filtros atuais.",
+    emptyClearAllFilters: "Limpar filtros",
+    readingFilterLabel: "Lista de leitura",
+    readingFilterGroupAria: "Filtrar por lista de leitura",
+    readingFilterAll: "Todos",
+    readingFilterWant: "Quero ler",
+    readingFilterRead: "Lidos",
+    readingFilterUnread: "Não lidos",
+    actionWantAria: "Quero ler",
+    actionReadAria: "Marcar como lido",
+    actionWantTooltip: "Quero ler",
+    actionReadTooltip: "Lido",
+    paginationAria: "Paginação",
+    paginationPrev: "Página anterior",
+    paginationNext: "Próxima página",
+    paginationPage: "Página {n}",
+    readingLocalToastText:
+      "Quero ler e Lido ficam salvos só neste navegador e neste aparelho (não sincronizam com outros dispositivos nem com contas).",
+    notifyText: "Falta um AU nesta página? Manda um tweet pra slappepolsen :)",
+    notifyBtn: "🐦 Tweetar para adicionar um AU",
+    footerText: "feito com 🧡🩷 para as lésbicas por slappepolsen.",
+    badgeMini: "Mini AU",
+    badgeEditors: "🏆 Escolha da curadoria",
+    notifyTweetBody:
+      "Oi @slappepolsen, tô no arquivo de AU's Loquinha e queria pedir pra você incluir o seguinte AU na página: <insira o AU ou o link do tweet>",
+    backToTopAria: "Voltar ao topo",
+    lastUpdatedLine: "Atualizado em {date}",
+  },
+  en: {
+    pageTitle: "Loquinha AU's ❤️🧡🤍🩷",
+    heroEyebrow: "✦ Twitter AU Archive ✦",
+    heroSub: "A gallery of Loquinha AU threads on twitter.",
+    aboutNoteTitle: "Why this archive exists",
+    aboutNoteBody:
+      "A little about why I made this: I was blown away by how much time and effort AU authors put into worldbuilding, thinking about details like which Glock doesn't have a serrated tip, cleaning the Glock, organizing chats and tweets, and I wanted to give them the spotlight they deserve. Think of it as a mini AO3, but for Twitter AUs :)",
+    transparencyNoteTitle: "Transparency note",
+    transparencyNoteBody: `<p>All AU's are welcome. If yours isn't listed here, send me a tweet.</p><p>The first major wave of inclusion focused on full AU's, not mini-AU' s, but now I'm including every kind of AU. The only requirement is that it lives on Twitter as a typical AU thread, not as a link to a fanfic site like AO3 or Wattpad.</p><p>In general, an AU reaches me in three ways:</p><ul><li>the algorithm</li><li>you, the author, or someone else sharing a link with me</li><li>searching for <code>"au" "loquinha"</code> on Twitter</li></ul>`,
+    ctaAddArchive: "Add an AU to the archive",
+    ctaBrowseTweets: "Browse tweets ↓",
+    browseHeading: "Browse",
+    filtersComingSoon:
+      "<strong>Coming soon:</strong> trope / universe filters. Use <strong>Filter authors</strong> to narrow by X handle.",
+    drawerTitle: "Filter by author",
+    drawerCloseAria: "Close panel",
+    drawerAuthorsAria: "Authors",
+    clearAuthors: "Clear authors",
+    filterAuthors: "Filter authors",
+    filterAllAuthors: "All authors",
+    filterOneAuthor: "1 author",
+    filterNAuthors: "{n} authors",
+    resultsOne: "<strong>{n}</strong> tweet shown",
+    resultsMany: "<strong>{n}</strong> tweets shown",
+    emptyNoTweetsTitle: "No tweets in the archive yet",
+    emptyNoTweetsLink: "Suggest one to add",
+    emptyFilterTitle: "No tweets for this author selection",
+    emptyFilterClear: "Clear authors",
+    emptyVisibleTitle: "No tweets match the current filters.",
+    emptyClearAllFilters: "Clear filters",
+    readingFilterLabel: "Reading list",
+    readingFilterGroupAria: "Filter by reading list",
+    readingFilterAll: "All",
+    readingFilterWant: "Want to read",
+    readingFilterRead: "Read",
+    readingFilterUnread: "Unread",
+    actionWantAria: "Want to read",
+    actionReadAria: "Mark as read",
+    actionWantTooltip: "Want to read",
+    actionReadTooltip: "Have read",
+    paginationAria: "Pagination",
+    paginationPrev: "Previous page",
+    paginationNext: "Next page",
+    paginationPage: "Page {n}",
+    readingLocalToastText:
+      "Want to read and Read are saved only in this browser on this device (they do not sync across other devices or accounts).",
+    notifyText: "AU missing from this page? Send a tweet to slappepolsen :)",
+    notifyBtn: "🐦 Tweet to add an AU",
+    footerText: "made with 🧡🩷 for the lesbians by slappepolsen.",
+    badgeMini: "Mini AU",
+    badgeEditors: "🏆 Editor's pick",
+    notifyTweetBody:
+      "Hey @slappepolsen, I've been browsing the Loquinha AU's archive and I was wondering if you could add the following AU to the page: <insert AU or tweet link>",
+    backToTopAria: "Back to top",
+    lastUpdatedLine: "Last updated {date}",
+  },
+};
+
+function lang() {
+  return localStorage.getItem(LANG_STORAGE) === "en" ? "en" : "pt";
+}
+
+function tr(key) {
+  const pack = MESSAGES[lang()];
+  if (pack && Object.prototype.hasOwnProperty.call(pack, key)) return pack[key];
+  if (MESSAGES.en[key] != null) return MESSAGES.en[key];
+  if (MESSAGES.pt[key] != null) return MESSAGES.pt[key];
+  return key;
+}
+
+function setLang(next) {
+  localStorage.setItem(LANG_STORAGE, next === "en" ? "en" : "pt");
+  document.documentElement.lang = next === "en" ? "en" : "pt-BR";
+  applyStaticI18n();
+  syncLangButtons();
+  syncAuthorFilterCount();
+  syncReadingFilterPills();
+  render();
+}
+
+function syncLangButtons() {
+  const L = lang();
+  const pt = document.getElementById("lang-pt");
+  const en = document.getElementById("lang-en");
+  const group = document.querySelector(".lang-switch");
+  if (!pt || !en) return;
+  pt.classList.toggle("is-active", L === "pt");
+  en.classList.toggle("is-active", L === "en");
+  pt.setAttribute("aria-pressed", L === "pt" ? "true" : "false");
+  en.setAttribute("aria-pressed", L === "en" ? "true" : "false");
+  pt.setAttribute("aria-label", L === "pt" ? "Português (Brasil), selecionado" : "Mudar para português (Brasil)");
+  en.setAttribute("aria-label", L === "en" ? "English, selected" : "Switch to English");
+  if (group) group.setAttribute("aria-label", L === "pt" ? "Idioma" : "Language");
+}
+
+function notifyIntentHref() {
+  return "https://twitter.com/intent/tweet?text=" + encodeURIComponent(tr("notifyTweetBody"));
+}
+
+function applyStaticI18n() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (!key) return;
+    const val = tr(key);
+    if (el.getAttribute("data-i18n-html") === "1") el.innerHTML = val;
+    else el.textContent = val;
+  });
+  document.getElementById("author-drawer-close")?.setAttribute("aria-label", tr("drawerCloseAria"));
+  document.getElementById("author-filter-tags")?.setAttribute("aria-label", tr("drawerAuthorsAria"));
+  const notifyLink = document.getElementById("notify-intent-link");
+  if (notifyLink) notifyLink.href = notifyIntentHref();
+  document.title = tr("pageTitle");
+  document.getElementById("back-to-top")?.setAttribute("aria-label", tr("backToTopAria"));
+  document.getElementById("reading-filter-row")?.setAttribute("aria-label", tr("readingFilterGroupAria"));
+  updateLastUpdatedLine();
+}
+
+function updateLastUpdatedLine() {
+  const el = document.getElementById("last-updated-line");
+  if (!el) return;
+  const loc = lang() === "pt" ? "pt-BR" : "en-US";
+  const d = new Date(ARCHIVE_LAST_UPDATED + "T12:00:00");
+  const formatted = d.toLocaleDateString(loc, { dateStyle: "long" });
+  el.textContent = tr("lastUpdatedLine").replace("{date}", formatted);
+}
+
+function initBackToTop() {
+  const btn = document.getElementById("back-to-top");
+  if (!btn) return;
+  btn.hidden = false;
+  const scrollThreshold = 400;
+  const mqReduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const onScroll = () => {
+    btn.classList.toggle("is-visible", window.scrollY > scrollThreshold);
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+  btn.addEventListener("click", () => {
+    const instant = mqReduce.matches;
+    window.scrollTo({ top: 0, behavior: instant ? "auto" : "smooth" });
+  });
+  btn.setAttribute("aria-label", tr("backToTopAria"));
+}
+
+/* ════════════════════════════════
+   Tweet data: id, author (X handle), url (canonical twitter.com/…/status/id, no ?s=…); optional tags: "mini AU", "Editor's pick".
+   Duplicates (same id or same /status/… id in url) are dropped; first occurrence wins.
+   ════════════════════════════════ */
+function tweetUrlStatusKey(u) {
+  if (!u || typeof u !== "string") return "";
+  const m = u.trim().match(/\/status\/(\d+)/i);
+  return m ? m[1] : "";
+}
+
+function dedupeTweets(list) {
+  const seenIds = new Set();
+  const seenStatus = new Set();
+  const out = [];
+  for (const tw of list) {
+    const nid = Number(tw.id);
+    if (!Number.isNaN(nid) && seenIds.has(nid)) continue;
+    const sk = tweetUrlStatusKey(tw.url);
+    if (sk && seenStatus.has(sk)) continue;
+    if (!Number.isNaN(nid)) seenIds.add(nid);
+    if (sk) seenStatus.add(sk);
+    out.push(tw);
+  }
+  return out;
+}
+
+const TWEETS = dedupeTweets([
+  {
+    "id": 1,
+    "author": "medveguillen",
+    "url": "https://twitter.com/medveguillen/status/2015595707491598362",
+    "tags": [
+      "Editor's pick"
+    ]
+  },
+  {
+    "id": 2,
+    "author": "meow_wildcat",
+    "url": "https://twitter.com/meow_wildcat/status/2035884462001492228",
+    "tags": [
+      "Editor's pick"
+    ]
+  },
+  {
+    "id": 3,
+    "author": "zzzon0",
+    "url": "https://twitter.com/zzzon0/status/2022834586699346344"
+  },
+  {
+    "id": 4,
+    "author": "mercedisx",
+    "url": "https://twitter.com/mercedisx/status/2025737461180084249"
+  },
+  {
+    "id": 5,
+    "author": "_luulli",
+    "url": "https://twitter.com/_luulli/status/2031154819835031571"
+  },
+  {
+    "id": 6,
+    "author": "zzzon0",
+    "url": "https://twitter.com/zzzon0/status/2023030619664707994"
+  },
+  {
+    "id": 7,
+    "author": "ringsmyoui",
+    "url": "https://twitter.com/ringsmyoui/status/2011176611140284794"
+  },
+  {
+    "id": 8,
+    "author": "fuckedops",
+    "url": "https://twitter.com/fuckedops/status/2030805232888828129"
+  },
+  {
+    "id": 9,
+    "author": "kccwift",
+    "url": "https://twitter.com/kccwift/status/2014485662343242194"
+  },
+  {
+    "id": 10,
+    "author": "baemoonys",
+    "url": "https://twitter.com/baemoonys/status/1983718419204862300"
+  },
+  {
+    "id": 11,
+    "author": "favmarrua",
+    "url": "https://twitter.com/favmarrua/status/2025724879081742431"
+  },
+  {
+    "id": 12,
+    "author": "kccwift",
+    "url": "https://twitter.com/kccwift/status/2023160303135911958"
+  },
+  {
+    "id": 13,
+    "author": "gravitylwsers",
+    "url": "https://twitter.com/gravitylwsers/status/2006884047319183664"
+  },
+  {
+    "id": 14,
+    "author": "sunisbrave",
+    "url": "https://twitter.com/sunisbrave/status/2018357012669534456"
+  },
+  {
+    "id": 15,
+    "author": "bearnaynie",
+    "url": "https://twitter.com/bearnaynie/status/2021956550731112852"
+  },
+  {
+    "id": 16,
+    "author": "cassigallery",
+    "url": "https://twitter.com/cassigallery/status/2018880628159365298"
+  },
+  {
+    "id": 17,
+    "author": "oazudam",
+    "url": "https://twitter.com/oazudam/status/2021968991623827676"
+  },
+  {
+    "id": 18,
+    "author": "uplandga",
+    "url": "https://twitter.com/uplandga/status/2020574613302825031"
+  },
+  {
+    "id": 19,
+    "author": "favsdaso",
+    "url": "https://twitter.com/favsdaso/status/2017369840504262923",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 20,
+    "author": "samdpx_",
+    "url": "https://twitter.com/samdpx_/status/2019565636121420279"
+  },
+  {
+    "id": 21,
+    "author": "mindlocket",
+    "url": "https://twitter.com/mindlocket/status/2021970851705299167"
+  },
+  {
+    "id": 22,
+    "author": "lilicamcgrath",
+    "url": "https://twitter.com/lilicamcgrath/status/2004919374315225368"
+  },
+  {
+    "id": 23,
+    "author": "loresafic",
+    "url": "https://twitter.com/loresafic/status/2025794403231486220"
+  },
+  {
+    "id": 24,
+    "author": "isa_solovioff",
+    "url": "https://twitter.com/isa_solovioff/status/1984703246670119105",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 25,
+    "author": "lilicamcgrath",
+    "url": "https://twitter.com/lilicamcgrath/status/2006917850167153085"
+  },
+  {
+    "id": 26,
+    "author": "mdvdky",
+    "url": "https://twitter.com/mdvdky/status/2027062823113703426"
+  },
+  {
+    "id": 27,
+    "author": "vrstrppen",
+    "url": "https://twitter.com/vrstrppen/status/1999615334416835059"
+  },
+  {
+    "id": 28,
+    "author": "lilicamcgrath",
+    "url": "https://twitter.com/lilicamcgrath/status/2005817070924030393"
+  },
+  {
+    "id": 29,
+    "author": "mahtristekkkkj",
+    "url": "https://twitter.com/mahtristekkkkj/status/2024682169650536663"
+  },
+  {
+    "id": 30,
+    "author": "mjsecret_",
+    "url": "https://twitter.com/mjsecret_/status/2010565467618914624"
+  },
+  {
+    "id": 31,
+    "author": "cullwnortega",
+    "url": "https://twitter.com/cullwnortega/status/2002455869624406095"
+  },
+  {
+    "id": 32,
+    "author": "luludahyo",
+    "url": "https://twitter.com/luludahyo/status/2017687999861919813"
+  },
+  {
+    "id": 33,
+    "author": "gravitylwsers",
+    "url": "https://twitter.com/gravitylwsers/status/2011489574040559946"
+  },
+  {
+    "id": 34,
+    "author": "baemoonys",
+    "url": "https://twitter.com/baemoonys/status/2006407807017333164"
+  },
+  {
+    "id": 35,
+    "author": "frenesillen",
+    "url": "https://twitter.com/frenesillen/status/2005637904958378366"
+  },
+  {
+    "id": 36,
+    "author": "mahtristekkkkj",
+    "url": "https://twitter.com/mahtristekkkkj/status/2015826250174968318"
+  },
+  {
+    "id": 37,
+    "author": "medveguillen",
+    "url": "https://twitter.com/medveguillen/status/2001445810827833444"
+  },
+  {
+    "id": 38,
+    "author": "auloquinha",
+    "url": "https://twitter.com/auloquinha/status/2016271262327169503"
+  },
+  {
+    "id": 39,
+    "author": "yukonsklr",
+    "url": "https://twitter.com/yukonsklr/status/2020651294768439461"
+  },
+  {
+    "id": 40,
+    "author": "AmericannBitch",
+    "url": "https://twitter.com/AmericannBitch/status/2024220660562600400"
+  },
+  {
+    "id": 41,
+    "author": "demisaysno",
+    "url": "https://twitter.com/demisaysno/status/2013607579117609404"
+  },
+  {
+    "id": 42,
+    "author": "wickedvdovsky",
+    "url": "https://twitter.com/wickedvdovsky/status/2035164246787379491"
+  },
+  {
+    "id": 43,
+    "author": "medvguillenz",
+    "url": "https://twitter.com/medvguillenz/status/2030361882976989465"
+  },
+  {
+    "id": 44,
+    "author": "anasapat_",
+    "url": "https://twitter.com/anasapat_/status/2020905472585257142"
+  },
+  {
+    "id": 45,
+    "author": "wickedvdovsky",
+    "url": "https://twitter.com/wickedvdovsky/status/2030423046368940108"
+  },
+  {
+    "id": 46,
+    "author": "gabiisfairy",
+    "url": "https://twitter.com/gabiisfairy/status/2029248058270105760"
+  },
+  {
+    "id": 47,
+    "author": "kikihruiz",
+    "url": "https://twitter.com/kikihruiz/status/2023941523558060298"
+  },
+  {
+    "id": 48,
+    "author": "faiskadaroit",
+    "url": "https://twitter.com/faiskadaroit/status/2045896740260180068"
+  },
+  {
+    "id": 49,
+    "author": "wickedvdovsky",
+    "url": "https://twitter.com/wickedvdovsky/status/2028235605528682991"
+  },
+  {
+    "id": 50,
+    "author": "zyoswf",
+    "url": "https://twitter.com/zyoswf/status/2022520735000928345"
+  },
+  {
+    "id": 51,
+    "author": "juqinh",
+    "url": "https://twitter.com/juqinh/status/2017062093581693389"
+  },
+  {
+    "id": 52,
+    "author": "folkshoni",
+    "url": "https://twitter.com/folkshoni/status/2032551709315145737"
+  },
+  {
+    "id": 53,
+    "author": "mdvdky",
+    "url": "https://twitter.com/mdvdky/status/2033206219360383197"
+  },
+  {
+    "id": 54,
+    "author": "alanisholic",
+    "url": "https://twitter.com/alanisholic/status/2024600594791436587"
+  },
+  {
+    "id": 55,
+    "author": "lenarottee",
+    "url": "https://twitter.com/lenarottee/status/2017708863324106928"
+  },
+  {
+    "id": 56,
+    "author": "mdvdky",
+    "url": "https://twitter.com/mdvdky/status/2027758520666358238"
+  },
+  {
+    "id": 57,
+    "author": "wickedvdovsky",
+    "url": "https://twitter.com/wickedvdovsky/status/2027548761996632375"
+  },
+  {
+    "id": 58,
+    "author": "juqinh",
+    "url": "https://twitter.com/juqinh/status/2017976102585594288"
+  },
+  {
+    "id": 59,
+    "author": "zdaycarol",
+    "url": "https://twitter.com/zdaycarol/status/2038645789572862404"
+  },
+  {
+    "id": 60,
+    "author": "madeforcelina",
+    "url": "https://twitter.com/madeforcelina/status/2045927868077633810"
+  },
+  {
+    "id": 61,
+    "author": "madasaus",
+    "url": "https://twitter.com/madasaus/status/2029656782927204402"
+  },
+  {
+    "id": 62,
+    "author": "brunasjournals",
+    "url": "https://twitter.com/brunasjournals/status/2034357977692434833"
+  },
+  {
+    "id": 63,
+    "author": "marydebones",
+    "url": "https://twitter.com/marydebones/status/2039680451946659989",
+    "tags": [
+      "Editor's pick"
+    ]
+  },
+  {
+    "id": 64,
+    "author": "malhwcao",
+    "url": "https://twitter.com/malhwcao/status/2023531935620870369"
+  },
+  {
+    "id": 65,
+    "author": "monteversion",
+    "url": "https://twitter.com/monteversion/status/2024338516570779752"
+  },
+  {
+    "id": 66,
+    "author": "juqinh",
+    "url": "https://twitter.com/juqinh/status/2021747660000997799"
+  },
+  {
+    "id": 67,
+    "author": "lobotions",
+    "url": "https://twitter.com/lobotions/status/2043106707044245658"
+  },
+  {
+    "id": 68,
+    "author": "Miy4ng0",
+    "url": "https://twitter.com/Miy4ng0/status/2035222018765783519"
+  },
+  {
+    "id": 69,
+    "author": "clairoftly",
+    "url": "https://twitter.com/clairoftly/status/2042287420809339359"
+  },
+  {
+    "id": 70,
+    "author": "meow_wildcat",
+    "url": "https://twitter.com/meow_wildcat/status/2030479159709872389"
+  },
+  {
+    "id": 71,
+    "author": "cullwnortega",
+    "url": "https://twitter.com/cullwnortega/status/2042059694911447195?s=20"
+  },
+  {
+    "id": 72,
+    "author": "meow_wildcat",
+    "url": "https://x.com/meow_wildcat/status/2040130668366069977?s=20"
+  },
+  {
+    "id": 73,
+    "author": "medvegga",
+    "url": "https://twitter.com/medvegga/status/2045704741141749878?s=20"
+  },
+  {
+    "id": 74,
+    "author": "wlwcgds",
+    "url": "https://twitter.com/wlwcgds/status/2046304302155870596?s=20",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 75,
+    "author": "biadesainer",
+    "url": "https://twitter.com/biadesainer/status/2046292482787545334?s=20"
+  },
+  {
+    "id": 76,
+    "author": "gabiisfairy",
+    "url": "https://twitter.com/gabiisfairy/status/2045590536841826657?s=20"
+  },
+  {
+    "id": 77,
+    "author": "guillevedov",
+    "url": "https://twitter.com/guillevedov/status/2045348835258495377?s=20"
+  },
+  {
+    "id": 78,
+    "author": "byyguillen",
+    "url": "https://twitter.com/byyguillen/status/2045330464685133914?s=20",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 79,
+    "author": "misamoart",
+    "url": "https://twitter.com/misamoart/status/2045301878150344752?s=20",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 80,
+    "author": "madeforcelina",
+    "url": "https://twitter.com/madeforcelina/status/2045261972602536184?s=20"
+  },  
+  {
+    "id": 81,
+    "author": "_ttdalaurinha",
+    "url": "https://twitter.com/_ttdalaurinha/status/2039011722313261106?s=20"
+  },
+  {
+    "id": 82,
+    "author": "zspnho",
+    "url": "https://x.com/zspnho/status/2044967820933402849?s=20"
+  },
+  {
+    "id": 83,
+    "author": "medvguillenz",
+    "url": "https://x.com/medvguillenz/status/2044959597706760450?s=20"
+  },
+  {
+    "id": 84,
+    "author": "tzarinawx",
+    "url": "https://x.com/tzarinawx/status/2044953665010536785?s=20"
+  },
+  {
+    "id": 85,
+    "author": "hemsbursin",
+    "url": "https://x.com/hemsbursin/status/2044900098945991102?s=20"
+  },
+  {
+    "id": 86,
+    "author": "Tayssinhaah",
+    "url": "https://x.com/Tayssinhaah/status/2044840647698337816?s=20"
+  },
+  {
+    "id": 87,
+    "author": "",
+    "url": ""
+  },
+  {
+    "id": 88,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 89,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 90,   
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 91,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 92,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 93,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 94,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 95,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 96,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 97,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 98,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 99,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 100,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 101,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 102,
+    "author": "user",
+    "url": ""
+  }
+]);
+
+function profileUrl(handle) {
+  return "https://twitter.com/" + encodeURIComponent(handle);
+}
+
+function badgesHtml(tw) {
+  const tags = tw.tags || [];
+  return tags.map((t) => {
+    if (t === "mini AU") return `<span class="tweet-badge tweet-badge--mini">${tr("badgeMini")}</span>`;
+    if (t === "Editor's pick") return `<span class="tweet-badge tweet-badge--pick">${tr("badgeEditors")}</span>`;
+    return `<span class="tweet-badge">${t}</span>`;
+  }).join("");
+}
+
+/** Author filter: empty set = show all; otherwise tweets whose `author` is in the set (OR). */
+const activeAuthors = new Set();
+
+const WANT_IDS_KEY = "loquinha-want-ids";
+const READ_IDS_KEY = "loquinha-read-ids";
+/** Set when the one-time local-storage hint has been shown (no user click required; toast auto-hides). */
+const READING_LOCAL_TOAST_SHOWN_KEY = "loquinha-reading-notice-dismissed";
+
+/** `all` | `want` | `read` | `unread` - combined with author filter in `visibleTweets()`. */
+let readingFilter = "all";
+
+const PAGE_SIZE = 12;
+let currentPage = 1;
+
+let wantTweetIds = new Set();
+let readTweetIds = new Set();
+
+function loadTweetIdSet(storageKey) {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    return new Set(arr.map((x) => Number(x)).filter((n) => !Number.isNaN(n)));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveTweetIdSet(storageKey, set) {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify([...set]));
+  } catch {
+    /* private mode / quota */
+  }
+}
+
+wantTweetIds = loadTweetIdSet(WANT_IDS_KEY);
+readTweetIds = loadTweetIdSet(READ_IDS_KEY);
+
+function uniqueAuthorsSorted() {
+  return [...new Set(TWEETS.map((t) => t.author))].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: "base" })
+  );
+}
+
+function isEditorsPick(tw) {
+  return tw.tags && tw.tags.includes("Editor's pick");
+}
+
+function baseFilteredSortedTweets() {
+  const list =
+    activeAuthors.size === 0
+      ? TWEETS.slice()
+      : TWEETS.filter((t) => activeAuthors.has(t.author));
+  list.sort((a, b) => {
+    const pa = isEditorsPick(a) ? 1 : 0;
+    const pb = isEditorsPick(b) ? 1 : 0;
+    if (pa !== pb) return pb - pa;
+    return (a.id || 0) - (b.id || 0);
+  });
+  return list;
+}
+
+function visibleTweets() {
+  const list = baseFilteredSortedTweets();
+  if (readingFilter === "want") return list.filter((t) => wantTweetIds.has(t.id));
+  if (readingFilter === "read") return list.filter((t) => readTweetIds.has(t.id));
+  if (readingFilter === "unread") return list.filter((t) => !readTweetIds.has(t.id));
+  return list;
+}
+
+function syncReadingFilterPills() {
+  document.querySelectorAll(".reading-filter-pill").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-reading") === readingFilter);
+  });
+}
+
+function readingLocalToastAlreadyShown() {
+  try {
+    return localStorage.getItem(READING_LOCAL_TOAST_SHOWN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+let readingLocalToastTimer = null;
+let readingLocalToastHideTimer = null;
+
+function hideReadingLocalToast() {
+  const el = document.getElementById("reading-local-toast");
+  if (!el) return;
+  if (readingLocalToastHideTimer) {
+    clearTimeout(readingLocalToastHideTimer);
+    readingLocalToastHideTimer = null;
+  }
+  el.classList.remove("is-visible");
+  readingLocalToastHideTimer = setTimeout(() => {
+    el.hidden = true;
+    readingLocalToastHideTimer = null;
+  }, 400);
+}
+
+/** One-time hint: small toast on first use of want/read; fades out by itself after a few seconds. */
+function showReadingLocalToastOnce() {
+  if (readingLocalToastAlreadyShown()) return;
+  try {
+    localStorage.setItem(READING_LOCAL_TOAST_SHOWN_KEY, "1");
+  } catch {
+    /* ignore */
+  }
+  const el = document.getElementById("reading-local-toast");
+  if (!el) return;
+  if (readingLocalToastTimer) {
+    clearTimeout(readingLocalToastTimer);
+    readingLocalToastTimer = null;
+  }
+  el.textContent = tr("readingLocalToastText");
+  el.hidden = false;
+  el.classList.remove("is-visible");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => el.classList.add("is-visible"));
+  });
+  readingLocalToastTimer = setTimeout(() => {
+    hideReadingLocalToast();
+    readingLocalToastTimer = null;
+  }, 4200);
+}
+
+function resetAllListFilters() {
+  activeAuthors.clear();
+  const wrap = document.getElementById("author-filter-tags");
+  if (wrap) wrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
+  readingFilter = "all";
+  currentPage = 1;
+  syncReadingFilterPills();
+  syncAuthorFilterCount();
+  render();
+}
+
+function syncAuthorFilterCount() {
+  const el = document.getElementById("author-filter-count");
+  const openLabel = document.getElementById("author-filter-open-label");
+  const n = activeAuthors.size;
+  if (n === 0) {
+    el.textContent = tr("filterAllAuthors");
+    el.classList.remove("is-on");
+    if (openLabel) openLabel.textContent = tr("filterAuthors");
+  } else {
+    el.textContent = n === 1 ? tr("filterOneAuthor") : tr("filterNAuthors").replace("{n}", String(n));
+    el.classList.add("is-on");
+    if (openLabel) openLabel.textContent = `${tr("filterAuthors")} (${n})`;
+  }
+}
+
+function initAuthorFilter() {
+  const wrap = document.getElementById("author-filter-tags");
+  wrap.innerHTML = uniqueAuthorsSorted()
+    .map(
+      (h) =>
+        `<button type="button" class="tag" data-author="${String(h)
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")}">@${String(h)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")}</button>`
+    )
+    .join("");
+
+  wrap.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tag");
+    if (!btn || !wrap.contains(btn)) return;
+    const h = btn.dataset.author;
+    if (activeAuthors.has(h)) {
+      activeAuthors.delete(h);
+      btn.classList.remove("active");
+    } else {
+      activeAuthors.add(h);
+      btn.classList.add("active");
+    }
+    syncAuthorFilterCount();
+    currentPage = 1;
+    render();
+  });
+
+  document.getElementById("author-filter-clear").addEventListener("click", () => {
+    activeAuthors.clear();
+    wrap.querySelectorAll(".tag.active").forEach((b) => b.classList.remove("active"));
+    syncAuthorFilterCount();
+    currentPage = 1;
+    render();
+  });
+
+  const backdrop = document.getElementById("author-drawer-backdrop");
+  const panel = document.getElementById("author-drawer");
+  const openBtn = document.getElementById("author-drawer-open");
+  const closeBtn = document.getElementById("author-drawer-close");
+
+  function openAuthorDrawer() {
+    document.body.classList.add("author-drawer-open");
+    backdrop.classList.add("is-visible");
+    backdrop.setAttribute("aria-hidden", "false");
+    panel.classList.add("is-open");
+    panel.setAttribute("aria-hidden", "false");
+    openBtn.setAttribute("aria-expanded", "true");
+    requestAnimationFrame(() => closeBtn.focus());
+  }
+
+  function closeAuthorDrawer() {
+    document.body.classList.remove("author-drawer-open");
+    backdrop.classList.remove("is-visible");
+    backdrop.setAttribute("aria-hidden", "true");
+    panel.classList.remove("is-open");
+    panel.setAttribute("aria-hidden", "true");
+    openBtn.setAttribute("aria-expanded", "false");
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener("click", () => {
+    if (document.body.classList.contains("author-drawer-open")) closeAuthorDrawer();
+    else openAuthorDrawer();
+  });
+  closeBtn.addEventListener("click", closeAuthorDrawer);
+  backdrop.addEventListener("click", closeAuthorDrawer);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.body.classList.contains("author-drawer-open")) {
+      closeAuthorDrawer();
+    }
+  });
+
+  syncAuthorFilterCount();
+}
+
+/** Lazy X embeds: disconnect before each full re-render. */
+const embedIntersectionObservers = [];
+const INITIAL_EMBED_BATCH = 12;
+
+function disconnectEmbedObservers() {
+  while (embedIntersectionObservers.length) {
+    embedIntersectionObservers.pop().disconnect();
+  }
+}
+
+function withTwttr(cb) {
+  const tw = window.twttr;
+  if (tw && tw.widgets && typeof tw.widgets.load === "function") {
+    cb(tw);
+    return;
+  }
+  if (tw && typeof tw.ready === "function") {
+    tw.ready(() => cb(window.twttr));
+    return;
+  }
+  setTimeout(() => withTwttr(cb), 40);
+}
+
+function loadEmbedForArticle(article) {
+  if (!article || article.dataset.embedLoaded === "1") return;
+  const wrap = article.querySelector(".tweet-embed-wrap");
+  if (!wrap) return;
+  article.dataset.embedLoaded = "1";
+  wrap.classList.remove("tweet-embed-pending");
+  withTwttr((t) => {
+    try {
+      t.widgets.load(wrap);
+    } catch (err) {
+      /* ignore */
+    }
+  });
+}
+
+function setupLazyEmbeds() {
+  const grid = document.getElementById("tweets-grid");
+  if (!grid) return;
+  const articles = [...grid.querySelectorAll("article.tweet-card")];
+  if (articles.length === 0) return;
+  articles.forEach((a) => {
+    a.dataset.embedLoaded = "0";
+    const w = a.querySelector(".tweet-embed-wrap");
+    if (w) w.classList.add("tweet-embed-pending");
+  });
+  const first = articles.slice(0, INITIAL_EMBED_BATCH);
+  const rest = articles.slice(INITIAL_EMBED_BATCH);
+  first.forEach((a) => loadEmbedForArticle(a));
+  if (rest.length === 0) return;
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((ent) => {
+        if (ent.isIntersecting) {
+          loadEmbedForArticle(ent.target);
+          io.unobserve(ent.target);
+        }
+      });
+    },
+    { root: null, rootMargin: "220px 0px", threshold: 0.01 }
+  );
+  rest.forEach((a) => io.observe(a));
+  embedIntersectionObservers.push(io);
+}
+
+function renderPagination(totalPages) {
+  const nav = document.getElementById("pagination");
+  if (!nav) return;
+  nav.setAttribute("aria-label", tr("paginationAria"));
+  if (totalPages <= 1) {
+    nav.hidden = true;
+    nav.innerHTML = "";
+    nav.dataset.totalPages = "1";
+    return;
+  }
+  nav.hidden = false;
+  nav.dataset.totalPages = String(totalPages);
+  const prev = currentPage - 1;
+  const next = currentPage + 1;
+  const esc = (s) =>
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;");
+  const prevLabel = esc(tr("paginationPrev"));
+  const nextLabel = esc(tr("paginationNext"));
+  let html = "";
+  html += `<button type="button" class="pagination-btn pagination-btn--edge" data-page="${prev}" ${
+    currentPage <= 1 ? "disabled" : ""
+  } aria-label="${prevLabel}">‹</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    const cur = i === currentPage;
+    const pageLabel = esc(tr("paginationPage").replace("{n}", String(i)));
+    html += `<button type="button" class="pagination-btn${cur ? " is-current" : ""}" data-page="${i}" aria-label="${pageLabel}"${
+      cur ? ' aria-current="page"' : ""
+    }>${i}</button>`;
+  }
+  html += `<button type="button" class="pagination-btn pagination-btn--edge" data-page="${next}" ${
+    currentPage >= totalPages ? "disabled" : ""
+  } aria-label="${nextLabel}">›</button>`;
+  nav.innerHTML = html;
+}
+
+function initPagination() {
+  const nav = document.getElementById("pagination");
+  if (!nav) return;
+  nav.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-page]");
+    if (!btn || !nav.contains(btn)) return;
+    if (btn.disabled) return;
+    const p = Number(btn.dataset.page);
+    if (Number.isNaN(p) || p < 1) return;
+    const total = Number(nav.dataset.totalPages || "1");
+    if (p > total) return;
+    currentPage = p;
+    render();
+    document.getElementById("tweets-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
+/* ── Render ── */
+function render() {
+  const grid = document.getElementById("tweets-grid");
+  const pagEl = document.getElementById("pagination");
+  const allVisible = visibleTweets();
+
+  const nVis = allVisible.length;
+  const resultsTpl = nVis === 1 ? tr("resultsOne") : tr("resultsMany");
+  document.getElementById("results-count").innerHTML = resultsTpl.replace(/\{n\}/g, String(nVis));
+
+  disconnectEmbedObservers();
+
+  if (TWEETS.length === 0) {
+    if (pagEl) {
+      pagEl.hidden = true;
+      pagEl.innerHTML = "";
+    }
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🏳️‍🌈</span>
+        <h3>${tr("emptyNoTweetsTitle")}</h3>
+        <p><a href="#notify-archive" style="color:var(--accent)">${tr("emptyNoTweetsLink")}</a></p>
+      </div>`;
+    return;
+  }
+
+  if (allVisible.length === 0) {
+    if (pagEl) {
+      pagEl.hidden = true;
+      pagEl.innerHTML = "";
+    }
+    grid.innerHTML = `
+      <div class="empty-state">
+        <span class="empty-icon">🏳️‍🌈</span>
+        <h3>${tr("emptyVisibleTitle")}</h3>
+        <p><button type="button" class="filter-reset" style="margin:0 auto;display:block" id="empty-clear-all-filters">${tr("emptyClearAllFilters")}</button></p>
+      </div>`;
+    document.getElementById("empty-clear-all-filters")?.addEventListener("click", resetAllListFilters);
+    return;
+  }
+
+  const totalPages = Math.max(1, Math.ceil(nVis / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+  const pageSlice = allVisible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const escTip = (s) =>
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  const wantTip = escTip(tr("actionWantTooltip"));
+  const readTip = escTip(tr("actionReadTooltip"));
+
+  grid.innerHTML = pageSlice.map((tw) => {
+    const pick = isEditorsPick(tw);
+    const cls = pick ? "tweet-card fade-in tweet-card--pick" : "tweet-card fade-in";
+    const wantOn = wantTweetIds.has(tw.id);
+    const readOn = readTweetIds.has(tw.id);
+    const wantIcon = wantOn ? "♥" : "♡";
+    const readIcon = readOn ? "✓" : "□";
+    return `
+    <article class="${cls}" data-tweet-id="${tw.id}">
+      <div class="tweet-card-meta">
+        <a class="tweet-author" href="${profileUrl(tw.author)}" target="_blank" rel="noopener noreferrer">@${tw.author}</a>
+        <span class="tweet-badges">${badgesHtml(tw)}</span>
+      </div>
+      <div class="tweet-card-actions">
+        <span class="action-btn-wrap">
+          <button type="button" class="action-want${wantOn ? " is-on" : ""}" aria-pressed="${wantOn ? "true" : "false"}" aria-label="${tr("actionWantAria")}">${wantIcon}</button>
+          <span class="action-tooltip" aria-hidden="true">${wantTip}</span>
+        </span>
+        <span class="action-btn-wrap">
+          <button type="button" class="action-read${readOn ? " is-on" : ""}" aria-pressed="${readOn ? "true" : "false"}" aria-label="${tr("actionReadAria")}">${readIcon}</button>
+          <span class="action-tooltip" aria-hidden="true">${readTip}</span>
+        </span>
+      </div>
+      <div class="tweet-embed-wrap tweet-embed-pending">
+        <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
+          <a href="${tw.url}"></a>
+        </blockquote>
+      </div>
+    </article>`;
+  }).join("");
+
+  renderPagination(totalPages);
+
+  setupLazyEmbeds();
+
+  /* Staggered scroll-in */
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add("visible"), i * 90);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  grid.querySelectorAll(".fade-in").forEach(c => obs.observe(c));
+}
+
+function initReadingListUi() {
+  const grid = document.getElementById("tweets-grid");
+  const row = document.getElementById("reading-filter-row");
+
+  row?.addEventListener("click", (e) => {
+    const pill = e.target.closest("[data-reading]");
+    if (!pill || !row.contains(pill)) return;
+    const v = pill.getAttribute("data-reading");
+    if (!v) return;
+    readingFilter = v;
+    currentPage = 1;
+    syncReadingFilterPills();
+    render();
+  });
+
+  grid?.addEventListener("click", (e) => {
+    const wantBtn = e.target.closest(".action-want");
+    const readBtn = e.target.closest(".action-read");
+    if (!wantBtn && !readBtn) return;
+    const article = (wantBtn || readBtn).closest("article.tweet-card");
+    if (!article || !grid.contains(article)) return;
+    const id = Number(article.dataset.tweetId);
+    if (Number.isNaN(id)) return;
+
+    showReadingLocalToastOnce();
+
+    if (wantBtn) {
+      if (wantTweetIds.has(id)) wantTweetIds.delete(id);
+      else wantTweetIds.add(id);
+      saveTweetIdSet(WANT_IDS_KEY, wantTweetIds);
+    }
+    if (readBtn) {
+      if (readTweetIds.has(id)) readTweetIds.delete(id);
+      else readTweetIds.add(id);
+      saveTweetIdSet(READ_IDS_KEY, readTweetIds);
+    }
+    render();
+  });
+}
+
+/* ── Init ── */
+document.documentElement.lang = lang() === "en" ? "en" : "pt-BR";
+document.getElementById("lang-pt").addEventListener("click", () => setLang("pt"));
+document.getElementById("lang-en").addEventListener("click", () => setLang("en"));
+applyStaticI18n();
+syncLangButtons();
+initAuthorFilter();
+initReadingListUi();
+initPagination();
+syncReadingFilterPills();
+initBackToTop();
+render();
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Loquinha AU's ❤️🧡🤍🩷</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Twitter widgets: queue callbacks before async script loads -->
+  <script>
+    window.twttr = (function (d, s, id) {
+      var t = window.twttr || {};
+      t._e = t._e || [];
+      t.ready = function (f) { t._e.push(f); };
+      return t;
+    })(document, "script", "twitter-wjs");
+  </script>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --c1: #df4300;
+      --c2: #f48a32;
+      --c3: #ffab68;
+      --c4: #dc7bb3;
+      --c5: #c46ea1;
+      --c6: #b42075;
+      --accent: #d168a3;
+
+      --bg: #fdf5f0;
+      --bg2: #f0e8e2;
+      --border: #e0cdc5;
+      --text: #333;
+      --text-muted: #888;
+      --text-light: #bbb;
+
+      --radius: 14px;
+      --transition: 0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Flag stripe ── */
+    .flag-bar {
+      display: flex;
+      height: 10px;
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .flag-bar span { flex: 1; }
+    .flag-bar span:nth-child(1) { background: var(--c1); }
+    .flag-bar span:nth-child(2) { background: var(--c2); }
+    .flag-bar span:nth-child(3) { background: var(--c3); }
+    .flag-bar span:nth-child(4) { background: #fff; }
+    .flag-bar span:nth-child(5) { background: var(--c4); }
+    .flag-bar span:nth-child(6) { background: var(--c5); }
+    .flag-bar span:nth-child(7) { background: var(--c6); }
+
+    /* ── Language toggle ── */
+    .lang-switch {
+      position: fixed;
+      top: max(14px, env(safe-area-inset-top));
+      right: max(16px, env(safe-area-inset-right));
+      z-index: 120;
+      display: flex;
+      gap: 0;
+      background: #fff;
+      border-radius: 999px;
+      border: 1.5px solid var(--border);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+    .lang-switch-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 7px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .lang-switch-btn.is-active {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      color: #fff;
+    }
+    .lang-switch-btn:not(.is-active):hover {
+      background: var(--bg2);
+      color: var(--c6);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      padding: 56px 24px 40px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero::before, .hero::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.28;
+      pointer-events: none;
+    }
+    .hero::before {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, var(--c3), var(--c2));
+      top: -120px; left: -80px;
+    }
+    .hero::after {
+      width: 360px; height: 360px;
+      background: radial-gradient(circle, var(--c5), var(--c6));
+      bottom: -100px; right: -60px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, var(--c1), var(--c6));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      position: relative;
+      z-index: 1;
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, var(--c1) 0%, var(--c3) 35%, var(--accent) 65%, var(--c6) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      margin-top: 14px;
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-bar {
+      margin-top: 28px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: transform var(--transition), filter var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--c1), var(--c6));
+      color: #fff;
+      box-shadow: 0 4px 18px rgba(180,32,117,0.3);
+    }
+    .btn-primary:hover {
+      filter: brightness(0.85);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 24px rgba(180,32,117,0.4);
+    }
+    .btn-ghost {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--c6);
+    }
+    .btn-ghost:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* ── Divider ── */
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--c3), var(--accent), var(--c5), transparent);
+      margin: 0 48px;
+      border-radius: 4px;
+    }
+
+    /* ── Why this archive ── */
+    .about-note {
+      max-width: 640px;
+      margin: 0 auto 8px;
+      padding: 0 24px 16px;
+    }
+    .about-note-inner {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+    }
+    .about-note-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .about-note-text {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
 
     /* ── Browse / filters (UI TBD) ── */
     .filters-section {
