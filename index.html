@@ -496,7 +496,7 @@
     .tweets-grid {
       max-width: 1100px;
       margin: 20px auto 0;
-      padding: 0 24px 60px;
+      padding: 0 24px 12px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 24px;
@@ -540,6 +540,7 @@
       align-items: center;
       gap: 6px;
       padding: 0 14px 8px;
+      overflow: visible;
     }
     .tweet-card-actions button {
       width: 36px;
@@ -572,6 +573,95 @@
       background: #e8f8ef;
       border-color: #2d8a54;
       color: #1e6b42;
+    }
+
+    .action-btn-wrap {
+      position: relative;
+      display: inline-flex;
+      vertical-align: middle;
+    }
+    .action-tooltip {
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 8px);
+      bottom: auto;
+      transform: translateX(-50%) translateY(-4px);
+      white-space: nowrap;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 20;
+      transition: opacity 0.18s ease, visibility 0.18s ease, transform 0.18s ease;
+      transition-delay: 0s;
+    }
+    .action-btn-wrap:hover .action-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+      transition-delay: 0.5s;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .action-tooltip {
+        transition-duration: 0.01ms;
+      }
+      .action-btn-wrap:hover .action-tooltip {
+        transition-delay: 0.01ms;
+      }
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 8px 24px 32px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .pagination[hidden] {
+      display: none !important;
+    }
+    .pagination-btn {
+      min-width: 40px;
+      height: 40px;
+      padding: 0 10px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .pagination-btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--c6);
+      background: var(--bg2);
+    }
+    .pagination-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .pagination-btn.is-current {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      border-color: transparent;
+      color: #fff;
+    }
+    .pagination-btn.pagination-btn--edge {
+      font-size: 1.1rem;
+      line-height: 1;
     }
 
     .reading-filter-row {
@@ -741,6 +831,7 @@
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .tweets-grid { grid-template-columns: 1fr; gap: 16px; }
+      .pagination { padding-left: 16px; padding-right: 16px; }
       .hero { padding: 40px 16px 28px; }
       .about-note { padding: 0 16px 12px; }
       .about-note-inner { padding: 16px 18px; }
@@ -836,6 +927,8 @@
 <!-- Tweet grid -->
 <main class="tweets-grid" id="tweets-grid"></main>
 
+<nav class="pagination" id="pagination" hidden aria-label="Paginação"></nav>
+
 <div class="divider" style="margin-bottom:48px;"></div>
 
 <!-- Add AU: single twitter.com/intent/tweet link -->
@@ -874,7 +967,7 @@ const MESSAGES = {
     heroSub: "Uma galeria de threads de AU's Loquinha no Twitter.",
     aboutNoteTitle: "Por que este arquivo",
     aboutNoteBody:
-      "Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo — pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets — e quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AUs do Twitter :)",
+      "Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo, pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets, e quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AUs do Twitter :)",
     ctaAddArchive: "Adicionar um AU ao arquivo",
     ctaBrowseTweets: "Ver tweets ↓",
     browseHeading: "Explorar",
@@ -904,6 +997,12 @@ const MESSAGES = {
     readingFilterUnread: "Não lidos",
     actionWantAria: "Quero ler",
     actionReadAria: "Marcar como lido",
+    actionWantTooltip: "Quero ler",
+    actionReadTooltip: "Lido",
+    paginationAria: "Paginação",
+    paginationPrev: "Página anterior",
+    paginationNext: "Próxima página",
+    paginationPage: "Página {n}",
     readingLocalToastText:
       "Quero ler e Lido ficam salvos só neste navegador e neste aparelho (não sincronizam com outros dispositivos nem com contas).",
     notifyText: "Falta um AU nesta página? Manda um tweet pra slappepolsen :)",
@@ -922,7 +1021,7 @@ const MESSAGES = {
     heroSub: "A gallery of Loquinha AU threads on twitter.",
     aboutNoteTitle: "Why this archive exists",
     aboutNoteBody:
-      "A little about why I made this: I was blown away by how much time and effort AU authors put into worldbuilding—thinking through details like which Glock doesn't have a serrated tip, cleaning the Glock, organizing chats and tweets—and I wanted to give them the spotlight they deserve. Think of it as a mini AO3, but for Twitter AUs :)",
+      "A little about why I made this: I was blown away by how much time and effort AU authors put into worldbuilding, thinking about details like which Glock doesn't have a serrated tip, cleaning the Glock, organizing chats and tweets, and I wanted to give them the spotlight they deserve. Think of it as a mini AO3, but for Twitter AUs :)",
     ctaAddArchive: "Add an AU to the archive",
     ctaBrowseTweets: "Browse tweets ↓",
     browseHeading: "Browse",
@@ -952,6 +1051,12 @@ const MESSAGES = {
     readingFilterUnread: "Unread",
     actionWantAria: "Want to read",
     actionReadAria: "Mark as read",
+    actionWantTooltip: "Want to read",
+    actionReadTooltip: "Have read",
+    paginationAria: "Pagination",
+    paginationPrev: "Previous page",
+    paginationNext: "Next page",
+    paginationPage: "Page {n}",
     readingLocalToastText:
       "Want to read and Read are saved only in this browser on this device (they do not sync across other devices or accounts).",
     notifyText: "AU missing from this page? Send a tweet to slappepolsen :)",
@@ -1054,8 +1159,31 @@ function initBackToTop() {
 
 /* ════════════════════════════════
    Tweet data — id, author (X handle), url (canonical twitter.com/…/status/id, no ?s=…); optional tags: "mini AU", "Editor's pick".
+   Duplicates (same id or same /status/… id in url) are dropped; first occurrence wins.
    ════════════════════════════════ */
-const TWEETS = [
+function tweetUrlStatusKey(u) {
+  if (!u || typeof u !== "string") return "";
+  const m = u.trim().match(/\/status\/(\d+)/i);
+  return m ? m[1] : "";
+}
+
+function dedupeTweets(list) {
+  const seenIds = new Set();
+  const seenStatus = new Set();
+  const out = [];
+  for (const tw of list) {
+    const nid = Number(tw.id);
+    if (!Number.isNaN(nid) && seenIds.has(nid)) continue;
+    const sk = tweetUrlStatusKey(tw.url);
+    if (sk && seenStatus.has(sk)) continue;
+    if (!Number.isNaN(nid)) seenIds.add(nid);
+    if (sk) seenStatus.add(sk);
+    out.push(tw);
+  }
+  return out;
+}
+
+const TWEETS = dedupeTweets([
   {
     "id": 1,
     "author": "medveguillen",
@@ -1423,20 +1551,88 @@ const TWEETS = [
   },
   {
     "id": 71,
-    "author": "user",
-    "url": ""
+    "author": "cullwnortega",
+    "url": "https://twitter.com/cullwnortega/status/2042059694911447195?s=20"
   },
   {
     "id": 72,
+    "author": "meow_wildcat",
+    "url": "https://x.com/meow_wildcat/status/2040130668366069977?s=20"
+  },
+  {
+    "id": 73,
+    "author": "medvegga",
+    "url": "https://twitter.com/medvegga/status/2045704741141749878?s=20"
+  },
+  {
+    "id": 74,
+    "author": "wlwcgds",
+    "url": "https://twitter.com/wlwcgds/status/2046304302155870596?s=20",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 75,
+    "author": "biadesainer",
+    "url": "https://twitter.com/biadesainer/status/2046292482787545334?s=20"
+  },
+  {
+    "id": 76,
+    "author": "gabiisfairy",
+    "url": "https://twitter.com/gabiisfairy/status/2045590536841826657?s=20"
+  },
+  {
+    "id": 77,
+    "author": "guillevedov",
+    "url": "https://twitter.com/guillevedov/status/2045348835258495377?s=20"
+  },
+  {
+    "id": 78,
     "author": "user",
     "url": ""
   },
   {
-    "id": 73,
+    "id": 79,
     "author": "user",
     "url": ""
   },
-];
+  {
+    "id": 80,
+    "author": "user",
+    "url": ""
+  },  
+  {
+    "id": 81,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 82,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 83,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 84,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 85,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 86,
+    "author": "user",
+    "url": ""
+  },
+]);
 
 function profileUrl(handle) {
   return "https://twitter.com/" + encodeURIComponent(handle);
@@ -1461,6 +1657,9 @@ const READING_LOCAL_TOAST_SHOWN_KEY = "loquinha-reading-notice-dismissed";
 
 /** `all` | `want` | `read` | `unread` — combined with author filter in `visibleTweets()`. */
 let readingFilter = "all";
+
+const PAGE_SIZE = 12;
+let currentPage = 1;
 
 let wantTweetIds = new Set();
 let readTweetIds = new Set();
@@ -1582,6 +1781,7 @@ function resetAllListFilters() {
   const wrap = document.getElementById("author-filter-tags");
   if (wrap) wrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
   readingFilter = "all";
+  currentPage = 1;
   syncReadingFilterPills();
   syncAuthorFilterCount();
   render();
@@ -1627,13 +1827,15 @@ function initAuthorFilter() {
       btn.classList.add("active");
     }
     syncAuthorFilterCount();
-  render();
+    currentPage = 1;
+    render();
   });
 
   document.getElementById("author-filter-clear").addEventListener("click", () => {
     activeAuthors.clear();
     wrap.querySelectorAll(".tag.active").forEach((b) => b.classList.remove("active"));
     syncAuthorFilterCount();
+    currentPage = 1;
     render();
   });
 
@@ -1680,7 +1882,7 @@ function initAuthorFilter() {
 
 /** Lazy X embeds: disconnect before each full re-render. */
 const embedIntersectionObservers = [];
-const INITIAL_EMBED_BATCH = 9;
+const INITIAL_EMBED_BATCH = 12;
 
 function disconnectEmbedObservers() {
   while (embedIntersectionObservers.length) {
@@ -1745,18 +1947,78 @@ function setupLazyEmbeds() {
   embedIntersectionObservers.push(io);
 }
 
+function renderPagination(totalPages) {
+  const nav = document.getElementById("pagination");
+  if (!nav) return;
+  nav.setAttribute("aria-label", tr("paginationAria"));
+  if (totalPages <= 1) {
+    nav.hidden = true;
+    nav.innerHTML = "";
+    nav.dataset.totalPages = "1";
+    return;
+  }
+  nav.hidden = false;
+  nav.dataset.totalPages = String(totalPages);
+  const prev = currentPage - 1;
+  const next = currentPage + 1;
+  const esc = (s) =>
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/</g, "&lt;");
+  const prevLabel = esc(tr("paginationPrev"));
+  const nextLabel = esc(tr("paginationNext"));
+  let html = "";
+  html += `<button type="button" class="pagination-btn pagination-btn--edge" data-page="${prev}" ${
+    currentPage <= 1 ? "disabled" : ""
+  } aria-label="${prevLabel}">‹</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    const cur = i === currentPage;
+    const pageLabel = esc(tr("paginationPage").replace("{n}", String(i)));
+    html += `<button type="button" class="pagination-btn${cur ? " is-current" : ""}" data-page="${i}" aria-label="${pageLabel}"${
+      cur ? ' aria-current="page"' : ""
+    }>${i}</button>`;
+  }
+  html += `<button type="button" class="pagination-btn pagination-btn--edge" data-page="${next}" ${
+    currentPage >= totalPages ? "disabled" : ""
+  } aria-label="${nextLabel}">›</button>`;
+  nav.innerHTML = html;
+}
+
+function initPagination() {
+  const nav = document.getElementById("pagination");
+  if (!nav) return;
+  nav.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-page]");
+    if (!btn || !nav.contains(btn)) return;
+    if (btn.disabled) return;
+    const p = Number(btn.dataset.page);
+    if (Number.isNaN(p) || p < 1) return;
+    const total = Number(nav.dataset.totalPages || "1");
+    if (p > total) return;
+    currentPage = p;
+    render();
+    document.getElementById("tweets-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 /* ── Render ── */
 function render() {
-  const grid    = document.getElementById("tweets-grid");
-  const visible = visibleTweets();
+  const grid = document.getElementById("tweets-grid");
+  const pagEl = document.getElementById("pagination");
+  const allVisible = visibleTweets();
 
-  const nVis = visible.length;
+  const nVis = allVisible.length;
   const resultsTpl = nVis === 1 ? tr("resultsOne") : tr("resultsMany");
   document.getElementById("results-count").innerHTML = resultsTpl.replace(/\{n\}/g, String(nVis));
 
   disconnectEmbedObservers();
 
   if (TWEETS.length === 0) {
+    if (pagEl) {
+      pagEl.hidden = true;
+      pagEl.innerHTML = "";
+    }
     grid.innerHTML = `
       <div class="empty-state">
         <span class="empty-icon">🏳️‍🌈</span>
@@ -1766,7 +2028,11 @@ function render() {
     return;
   }
 
-  if (visible.length === 0) {
+  if (allVisible.length === 0) {
+    if (pagEl) {
+      pagEl.hidden = true;
+      pagEl.innerHTML = "";
+    }
     grid.innerHTML = `
       <div class="empty-state">
         <span class="empty-icon">🏳️‍🌈</span>
@@ -1777,7 +2043,20 @@ function render() {
     return;
   }
 
-  grid.innerHTML = visible.map((tw) => {
+  const totalPages = Math.max(1, Math.ceil(nVis / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+  const pageSlice = allVisible.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const escTip = (s) =>
+    String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  const wantTip = escTip(tr("actionWantTooltip"));
+  const readTip = escTip(tr("actionReadTooltip"));
+
+  grid.innerHTML = pageSlice.map((tw) => {
     const pick = isEditorsPick(tw);
     const cls = pick ? "tweet-card fade-in tweet-card--pick" : "tweet-card fade-in";
     const wantOn = wantTweetIds.has(tw.id);
@@ -1791,8 +2070,14 @@ function render() {
         <span class="tweet-badges">${badgesHtml(tw)}</span>
       </div>
       <div class="tweet-card-actions">
-        <button type="button" class="action-want${wantOn ? " is-on" : ""}" aria-pressed="${wantOn ? "true" : "false"}" aria-label="${tr("actionWantAria")}">${wantIcon}</button>
-        <button type="button" class="action-read${readOn ? " is-on" : ""}" aria-pressed="${readOn ? "true" : "false"}" aria-label="${tr("actionReadAria")}">${readIcon}</button>
+        <span class="action-btn-wrap">
+          <button type="button" class="action-want${wantOn ? " is-on" : ""}" aria-pressed="${wantOn ? "true" : "false"}" aria-label="${tr("actionWantAria")}">${wantIcon}</button>
+          <span class="action-tooltip" aria-hidden="true">${wantTip}</span>
+        </span>
+        <span class="action-btn-wrap">
+          <button type="button" class="action-read${readOn ? " is-on" : ""}" aria-pressed="${readOn ? "true" : "false"}" aria-label="${tr("actionReadAria")}">${readIcon}</button>
+          <span class="action-tooltip" aria-hidden="true">${readTip}</span>
+        </span>
       </div>
       <div class="tweet-embed-wrap tweet-embed-pending">
         <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
@@ -1801,6 +2086,8 @@ function render() {
       </div>
     </article>`;
   }).join("");
+
+  renderPagination(totalPages);
 
   setupLazyEmbeds();
 
@@ -1826,6 +2113,7 @@ function initReadingListUi() {
     const v = pill.getAttribute("data-reading");
     if (!v) return;
     readingFilter = v;
+    currentPage = 1;
     syncReadingFilterPills();
     render();
   });
@@ -1863,6 +2151,7 @@ applyStaticI18n();
 syncLangButtons();
 initAuthorFilter();
 initReadingListUi();
+initPagination();
 syncReadingFilterPills();
 initBackToTop();
 render();
