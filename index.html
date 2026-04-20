@@ -226,6 +226,31 @@
       border-radius: 4px;
     }
 
+    /* ── Why this archive ── */
+    .about-note {
+      max-width: 640px;
+      margin: 0 auto 8px;
+      padding: 0 24px 16px;
+    }
+    .about-note-inner {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+    }
+    .about-note-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .about-note-text {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
     /* ── Browse / filters (UI TBD) ── */
     .filters-section {
       padding: 28px 24px 8px;
@@ -717,6 +742,8 @@
     @media (max-width: 600px) {
       .tweets-grid { grid-template-columns: 1fr; gap: 16px; }
       .hero { padding: 40px 16px 28px; }
+      .about-note { padding: 0 16px 12px; }
+      .about-note-inner { padding: 16px 18px; }
       .divider { margin: 0 16px; }
       .btn-filter-trigger {
         margin-left: 0;
@@ -819,6 +846,13 @@
   </a>
 </section>
 
+<section class="about-note" aria-labelledby="about-note-title">
+  <div class="about-note-inner">
+    <h2 class="about-note-title" id="about-note-title" data-i18n="aboutNoteTitle">Por que este arquivo</h2>
+    <p class="about-note-text" data-i18n="aboutNoteBody">Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo — pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets — e eu quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AUs do Twitter :)</p>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer>
   <p data-i18n="footerText">feito com 🧡🩷 para as lésbicas por slappepolsen.</p>
@@ -838,6 +872,9 @@ const MESSAGES = {
     pageTitle: "Loquinha AU's ❤️🧡🤍🩷",
     heroEyebrow: "✦ Arquivo de AUs no Twitter ✦",
     heroSub: "Uma galeria de threads de AU's Loquinha no Twitter.",
+    aboutNoteTitle: "Por que este arquivo",
+    aboutNoteBody:
+      "Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo — pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets — e quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AUs do Twitter :)",
     ctaAddArchive: "Adicionar um AU ao arquivo",
     ctaBrowseTweets: "Ver tweets ↓",
     browseHeading: "Explorar",
@@ -883,6 +920,9 @@ const MESSAGES = {
     pageTitle: "Loquinha AU's ❤️🧡🤍🩷",
     heroEyebrow: "✦ Twitter AU Archive ✦",
     heroSub: "A gallery of Loquinha AU threads on twitter.",
+    aboutNoteTitle: "Why this archive exists",
+    aboutNoteBody:
+      "A little about why I made this: I was blown away by how much time and effort AU authors put into worldbuilding—thinking through details like which Glock doesn't have a serrated tip, cleaning the Glock, organizing chats and tweets—and I wanted to give them the spotlight they deserve. Think of it as a mini AO3, but for Twitter AUs :)",
     ctaAddArchive: "Add an AU to the archive",
     ctaBrowseTweets: "Browse tweets ↓",
     browseHeading: "Browse",
@@ -1375,7 +1415,27 @@ const TWEETS = [
     "id": 69,
     "author": "clairoftly",
     "url": "https://twitter.com/clairoftly/status/2042287420809339359"
-  }
+  },
+  {
+    "id": 70,
+    "author": "meow_wildcat",
+    "url": "https://twitter.com/meow_wildcat/status/2030479159709872389"
+  },
+  {
+    "id": 71,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 72,
+    "author": "user",
+    "url": ""
+  },
+  {
+    "id": 73,
+    "author": "user",
+    "url": ""
+  },
 ];
 
 function profileUrl(handle) {
