@@ -471,6 +471,22 @@
       margin: 0;
       line-height: 1.4;
     }
+    .results-shuffle {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .results-shuffle .btn {
+      font-size: 0.82rem;
+      padding: 8px 14px;
+    }
+    .results-shuffle .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
 
     /* ── Back to top ── */
     .back-to-top {
@@ -856,6 +872,8 @@
       .about-note { padding: 0 16px 12px; }
       .about-note-inner { padding: 16px 18px; }
       .divider { margin: 0 16px; }
+      .results-bar { flex-direction: column; align-items: stretch; }
+      .results-shuffle { justify-content: flex-start; }
       .btn-filter-trigger {
         margin-left: 0;
         width: 100%;
@@ -930,6 +948,10 @@
     <p class="results-count" id="results-count"><strong>0</strong> tweets</p>
     <p class="last-updated" id="last-updated-line" aria-live="polite"></p>
   </div>
+  <div class="results-shuffle" id="shuffle-controls" role="group" aria-label="">
+    <button type="button" class="btn btn-ghost" id="shuffle-rest-btn" data-i18n="shuffleRestBtn">Embaralhar o restante</button>
+    <button type="button" class="btn btn-ghost" id="shuffle-reset-btn" data-i18n="shuffleResetBtn" disabled>Ordem padrão</button>
+  </div>
 </div>
 
 <p class="reading-local-toast" id="reading-local-toast" role="status" aria-live="polite" hidden data-i18n="readingLocalToastText"></p>
@@ -976,7 +998,7 @@
 <section class="about-note" id="gringa-note" aria-labelledby="gringa-note-title">
   <div class="about-note-inner">
     <h2 class="about-note-title" id="gringa-note-title" data-i18n="gringaNoteTitle">Uma notinha de gringa</h2>
-    <p class="about-note-text" data-i18n="gringaNoteBody">Now is a good time to come out as a gringa. I'm not trying to pretend I speak a single word of PT-BR, but since there are so many awesome AUs written in PT-BR, it felt like the right thing to do to combine my nerdiness and make this website in PT-BR. Again, please: I'm not trying to pretend I'm something I'm not. I'm Dutch, actually.</p>
+    <p class="about-note-text" data-i18n="gringaNoteBody">É bom eu deixar claro: sou gringa. Não quero fingir que falo português do Brasil, mas tem tantas AUs incríveis em PT-BR que pareceu certo juntar minha nerdice e fazer este site em PT-BR. De novo, por favor: não estou fingindo ser o que não sou. Sou holandesa.</p>
   </div>
 </section>
 
@@ -1006,7 +1028,7 @@ const MESSAGES = {
     transparencyNoteBody: `<p>Todas as AU's são bem-vindas. Se a sua AU não está aqui, me manda um tweet.</p><p>A primeira grande inclusão partiu de AU's completas, não de mini-AU's, mas agora estou incluindo todo tipo de AU. O único requisito é que esteja no Twitter como uma thread típica de AU, não como link para um site de fanfic tipo AO3 ou Wattpad.</p><p>Em geral, uma AU chega ao meu radar de três jeitos:</p><ul><li>o algoritmo</li><li>você, a autora ou outra pessoa me mandando o link</li><li>busca por <code>"au" "loquinha"</code> no Twitter</li></ul>`,
     gringaNoteTitle: "Uma notinha de gringa",
     gringaNoteBody:
-      "Now is a good time to come out as a gringa. I'm not trying to pretend I speak a single word of PT-BR, but since there are so many awesome AUs written in PT-BR, it felt like the right thing to do to combine my nerdiness and make this website in PT-BR. Again, please: I'm not trying to pretend I'm something I'm not. I'm Dutch, actually.",
+      "É bom eu deixar claro: sou gringa. Não quero fingir que falo português do Brasil, mas tem tantas AUs incríveis em PT-BR que pareceu certo juntar minha nerdice e fazer este site em PT-BR. De novo, por favor: não estou fingindo ser o que não sou. Sou holandesa.",
     ctaAddArchive: "Adicionar um AU ao arquivo",
     ctaBrowseTweets: "Ver tweets ↓",
     browseHeading: "Explorar",
@@ -1034,6 +1056,9 @@ const MESSAGES = {
     readingFilterWant: "Quero ler",
     readingFilterRead: "Lidos",
     readingFilterUnread: "Não lidos",
+    shuffleGroupAria: "Ordem da lista (fora da escolha da curadoria)",
+    shuffleRestBtn: "Embaralhar o restante",
+    shuffleResetBtn: "Ordem padrão",
     actionWantAria: "Quero ler",
     actionReadAria: "Marcar como lido",
     actionWantTooltip: "Quero ler",
@@ -1092,6 +1117,9 @@ const MESSAGES = {
     readingFilterWant: "Want to read",
     readingFilterRead: "Read",
     readingFilterUnread: "Unread",
+    shuffleGroupAria: "Order (excluding editor's picks)",
+    shuffleRestBtn: "Shuffle the rest",
+    shuffleResetBtn: "Default order",
     actionWantAria: "Want to read",
     actionReadAria: "Mark as read",
     actionWantTooltip: "Want to read",
@@ -1170,6 +1198,7 @@ function applyStaticI18n() {
   document.title = tr("pageTitle");
   document.getElementById("back-to-top")?.setAttribute("aria-label", tr("backToTopAria"));
   document.getElementById("reading-filter-row")?.setAttribute("aria-label", tr("readingFilterGroupAria"));
+  document.getElementById("shuffle-controls")?.setAttribute("aria-label", tr("shuffleGroupAria"));
   updateLastUpdatedLine();
   const gringaNote = document.getElementById("gringa-note");
   if (gringaNote) {
@@ -1792,6 +1821,9 @@ const READING_LOCAL_TOAST_SHOWN_KEY = "loquinha-reading-notice-dismissed";
 /** `all` | `want` | `read` | `unread` - combined with author filter in `visibleTweets()`. */
 let readingFilter = "all";
 
+/** When set, non-editor tweets use this id order (editor's picks stay first, sorted by id). */
+let shuffledRestIds = null;
+
 const PAGE_SIZE = 12;
 let currentPage = 1;
 
@@ -1845,12 +1877,75 @@ function baseFilteredSortedTweets() {
   return list;
 }
 
-function visibleTweets() {
-  const list = baseFilteredSortedTweets();
+function applyReadingFilter(list) {
   if (readingFilter === "want") return list.filter((t) => wantTweetIds.has(t.id));
   if (readingFilter === "read") return list.filter((t) => readTweetIds.has(t.id));
   if (readingFilter === "unread") return list.filter((t) => !readTweetIds.has(t.id));
   return list;
+}
+
+function clearShuffleRest() {
+  shuffledRestIds = null;
+}
+
+function shuffleRestNow() {
+  const base = baseFilteredSortedTweets();
+  const filtered = applyReadingFilter(base);
+  const rest = filtered.filter((t) => !isEditorsPick(t));
+  if (rest.length <= 1) return false;
+  const arr = rest.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = arr[i];
+    arr[i] = arr[j];
+    arr[j] = t;
+  }
+  shuffledRestIds = arr.map((t) => t.id);
+  currentPage = 1;
+  return true;
+}
+
+function visibleTweets() {
+  const base = baseFilteredSortedTweets();
+  const filtered = applyReadingFilter(base);
+  const picks = filtered.filter(isEditorsPick).sort((a, b) => (a.id || 0) - (b.id || 0));
+  const rest = filtered.filter((t) => !isEditorsPick(t));
+  let restOrdered;
+  if (!shuffledRestIds) {
+    restOrdered = rest.slice().sort((a, b) => (a.id || 0) - (b.id || 0));
+  } else {
+    const restIds = new Set(rest.map((t) => t.id));
+    const order = shuffledRestIds.filter((id) => restIds.has(id));
+    const extras = rest
+      .map((t) => t.id)
+      .filter((id) => !order.includes(id))
+      .sort((a, b) => a - b);
+    const finalOrder = [...order, ...extras];
+    const indexMap = new Map(finalOrder.map((id, i) => [id, i]));
+    restOrdered = rest.slice().sort((a, b) => {
+      const ia = indexMap.has(a.id) ? indexMap.get(a.id) : 999999;
+      const ib = indexMap.has(b.id) ? indexMap.get(b.id) : 999999;
+      if (ia !== ib) return ia - ib;
+      return (a.id || 0) - (b.id || 0);
+    });
+  }
+  return [...picks, ...restOrdered];
+}
+
+function updateShuffleUi() {
+  const shuffleBtn = document.getElementById("shuffle-rest-btn");
+  const resetBtn = document.getElementById("shuffle-reset-btn");
+  if (!shuffleBtn || !resetBtn) return;
+  if (TWEETS.length === 0) {
+    shuffleBtn.disabled = true;
+    resetBtn.disabled = true;
+    return;
+  }
+  const base = baseFilteredSortedTweets();
+  const filtered = applyReadingFilter(base);
+  const nRest = filtered.filter((t) => !isEditorsPick(t)).length;
+  shuffleBtn.disabled = nRest <= 1;
+  resetBtn.disabled = !shuffledRestIds;
 }
 
 function syncReadingFilterPills() {
@@ -1916,6 +2011,7 @@ function resetAllListFilters() {
   if (wrap) wrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
   readingFilter = "all";
   currentPage = 1;
+  clearShuffleRest();
   syncReadingFilterPills();
   syncAuthorFilterCount();
   render();
@@ -1961,6 +2057,7 @@ function initAuthorFilter() {
       btn.classList.add("active");
     }
     syncAuthorFilterCount();
+    clearShuffleRest();
     currentPage = 1;
     render();
   });
@@ -1969,6 +2066,7 @@ function initAuthorFilter() {
     activeAuthors.clear();
     wrap.querySelectorAll(".tag.active").forEach((b) => b.classList.remove("active"));
     syncAuthorFilterCount();
+    clearShuffleRest();
     currentPage = 1;
     render();
   });
@@ -2119,6 +2217,20 @@ function renderPagination(totalPages) {
   nav.innerHTML = html;
 }
 
+function initShuffleControls() {
+  document.getElementById("shuffle-rest-btn")?.addEventListener("click", () => {
+    if (!shuffleRestNow()) return;
+    render();
+    document.getElementById("tweets-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  document.getElementById("shuffle-reset-btn")?.addEventListener("click", () => {
+    clearShuffleRest();
+    currentPage = 1;
+    render();
+    document.getElementById("tweets-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 function initPagination() {
   const nav = document.getElementById("pagination");
   if (!nav) return;
@@ -2159,6 +2271,7 @@ function render() {
         <h3>${tr("emptyNoTweetsTitle")}</h3>
         <p><a href="#notify-archive" style="color:var(--accent)">${tr("emptyNoTweetsLink")}</a></p>
       </div>`;
+    updateShuffleUi();
     return;
   }
 
@@ -2174,6 +2287,7 @@ function render() {
         <p><button type="button" class="filter-reset" style="margin:0 auto;display:block" id="empty-clear-all-filters">${tr("emptyClearAllFilters")}</button></p>
       </div>`;
     document.getElementById("empty-clear-all-filters")?.addEventListener("click", resetAllListFilters);
+    updateShuffleUi();
     return;
   }
 
@@ -2235,6 +2349,7 @@ function render() {
     });
   }, { threshold: 0.08 });
   grid.querySelectorAll(".fade-in").forEach(c => obs.observe(c));
+  updateShuffleUi();
 }
 
 function initReadingListUi() {
@@ -2247,6 +2362,7 @@ function initReadingListUi() {
     const v = pill.getAttribute("data-reading");
     if (!v) return;
     readingFilter = v;
+    clearShuffleRest();
     currentPage = 1;
     syncReadingFilterPills();
     render();
@@ -2285,6 +2401,7 @@ applyStaticI18n();
 syncLangButtons();
 initAuthorFilter();
 initReadingListUi();
+initShuffleControls();
 initPagination();
 syncReadingFilterPills();
 initBackToTop();
