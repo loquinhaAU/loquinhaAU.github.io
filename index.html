@@ -864,6 +864,59 @@
     footer a { color: var(--accent); text-decoration: none; }
     footer a:hover { text-decoration: underline; }
 
+    /* ── Info link cards ── */
+    .links-cards-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 12px 24px 8px;
+    }
+    .links-cards-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .links-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .link-card {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 16px 18px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: #fff;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .link-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 6px 22px rgba(180, 32, 117, 0.12);
+      transform: translateY(-2px);
+    }
+    .link-card:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+    .link-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+    }
+    .link-card-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .tweets-grid { grid-template-columns: 1fr; gap: 16px; }
@@ -874,6 +927,7 @@
       .divider { margin: 0 16px; }
       .results-bar { flex-direction: column; align-items: stretch; }
       .results-shuffle { justify-content: flex-start; }
+      .links-cards-section { padding-left: 16px; padding-right: 16px; }
       .btn-filter-trigger {
         margin-left: 0;
         width: 100%;
@@ -1002,6 +1056,28 @@
   </div>
 </section>
 
+<section class="links-cards-section" aria-labelledby="info-links-heading">
+  <h2 class="links-cards-heading" id="info-links-heading" data-i18n="infoLinksHeading">Links</h2>
+  <div class="links-cards-grid">
+    <a class="link-card" href="https://github.com/loquinhaAU/loquinhaAU.github.io" target="_blank" rel="noopener noreferrer">
+      <span class="link-card-title" data-i18n="infoLinkSourceTitle">Código-fonte do arquivo</span>
+      <span class="link-card-hint" data-i18n="infoLinkSourceHint">github.com/loquinhaAU/loquinhaAU.github.io</span>
+    </a>
+    <a class="link-card" href="https://slappepolsen.github.io" target="_blank" rel="noopener noreferrer">
+      <span class="link-card-title" data-i18n="infoLinkSiteTitle">Outro site</span>
+      <span class="link-card-hint" data-i18n="infoLinkSiteHint">slappepolsen.github.io</span>
+    </a>
+    <a class="link-card" href="https://twitter.com/slappepolsen" target="_blank" rel="noopener noreferrer">
+      <span class="link-card-title" data-i18n="infoLinkTwitterTitle">Twitter</span>
+      <span class="link-card-hint" data-i18n="infoLinkTwitterHint">@slappepolsen</span>
+    </a>
+    <a class="link-card" href="https://github.com/slappepolsen/sp-workshop" target="_blank" rel="noopener noreferrer">
+      <span class="link-card-title" data-i18n="infoLinkAppTitle">App que eu fiz</span>
+      <span class="link-card-hint" data-i18n="infoLinkAppHint">github.com/slappepolsen/sp-workshop</span>
+    </a>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer>
   <p data-i18n="footerText">feito com 🧡🩷 para as lésbicas por slappepolsen.</p>
@@ -1071,6 +1147,15 @@ const MESSAGES = {
       "Quero ler e Lido ficam salvos só neste navegador e neste aparelho (não sincronizam com outros dispositivos nem com contas).",
     notifyText: "Falta um AU nesta página? Manda um tweet pra slappepolsen :)",
     notifyBtn: "🐦 Tweetar para adicionar um AU",
+    infoLinksHeading: "Links",
+    infoLinkSourceTitle: "Código-fonte do arquivo",
+    infoLinkSourceHint: "github.com/loquinhaAU/loquinhaAU.github.io",
+    infoLinkSiteTitle: "Outro site",
+    infoLinkSiteHint: "slappepolsen.github.io",
+    infoLinkTwitterTitle: "Twitter",
+    infoLinkTwitterHint: "@slappepolsen",
+    infoLinkAppTitle: "App que eu fiz",
+    infoLinkAppHint: "github.com/slappepolsen/sp-workshop",
     footerText: "feito com 🧡🩷 para as lésbicas por slappepolsen.",
     badgeMini: "Mini AU",
     badgeEditors: "🏆 Escolha da curadoria",
@@ -1132,6 +1217,15 @@ const MESSAGES = {
       "Want to read and Read are saved only in this browser on this device (they do not sync across other devices or accounts).",
     notifyText: "AU missing from this page? Send a tweet to slappepolsen :)",
     notifyBtn: "🐦 Tweet to add an AU",
+    infoLinksHeading: "Links",
+    infoLinkSourceTitle: "Source code for this site",
+    infoLinkSourceHint: "github.com/loquinhaAU/loquinhaAU.github.io",
+    infoLinkSiteTitle: "My other site",
+    infoLinkSiteHint: "slappepolsen.github.io",
+    infoLinkTwitterTitle: "Twitter",
+    infoLinkTwitterHint: "@slappepolsen",
+    infoLinkAppTitle: "App I built",
+    infoLinkAppHint: "github.com/slappepolsen/sp-workshop",
     footerText: "made with 🧡🩷 for the lesbians by slappepolsen.",
     badgeMini: "Mini AU",
     badgeEditors: "🏆 Editor's pick",
