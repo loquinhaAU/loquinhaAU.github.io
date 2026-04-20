@@ -1,1 +1,1 @@
-# loquinhaAU.github.io
+![Project banner](media/banner.png)
