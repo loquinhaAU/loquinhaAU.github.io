@@ -973,6 +973,13 @@
   </div>
 </section>
 
+<section class="about-note" id="gringa-note" aria-labelledby="gringa-note-title">
+  <div class="about-note-inner">
+    <h2 class="about-note-title" id="gringa-note-title" data-i18n="gringaNoteTitle">Uma notinha de gringa</h2>
+    <p class="about-note-text" data-i18n="gringaNoteBody">Now is a good time to come out as a gringa. I'm not trying to pretend I speak a single word of PT-BR, but since there are so many awesome AUs written in PT-BR, it felt like the right thing to do to combine my nerdiness and make this website in PT-BR. Again, please: I'm not trying to pretend I'm something I'm not. I'm Dutch, actually.</p>
+  </div>
+</section>
+
 <!-- Footer -->
 <footer>
   <p data-i18n="footerText">feito com 🧡🩷 para as lésbicas por slappepolsen.</p>
@@ -997,6 +1004,9 @@ const MESSAGES = {
       "Um pouco sobre por que eu fiz isso: fiquei impressionado com o quanto autores de AU colocam tempo e esforço na construção de mundo, pensando até em qual glock não tem ponta serrilhada, limpando a glock, organizando chats e tweets, e quis dar a eles o destaque que merecem. Pensa nisso como um mini AO3, só que pra AU's do Twitter :)",
     transparencyNoteTitle: "Nota de transparência",
     transparencyNoteBody: `<p>Todas as AU's são bem-vindas. Se a sua AU não está aqui, me manda um tweet.</p><p>A primeira grande inclusão partiu de AU's completas, não de mini-AU's, mas agora estou incluindo todo tipo de AU. O único requisito é que esteja no Twitter como uma thread típica de AU, não como link para um site de fanfic tipo AO3 ou Wattpad.</p><p>Em geral, uma AU chega ao meu radar de três jeitos:</p><ul><li>o algoritmo</li><li>você, a autora ou outra pessoa me mandando o link</li><li>busca por <code>"au" "loquinha"</code> no Twitter</li></ul>`,
+    gringaNoteTitle: "Uma notinha de gringa",
+    gringaNoteBody:
+      "Now is a good time to come out as a gringa. I'm not trying to pretend I speak a single word of PT-BR, but since there are so many awesome AUs written in PT-BR, it felt like the right thing to do to combine my nerdiness and make this website in PT-BR. Again, please: I'm not trying to pretend I'm something I'm not. I'm Dutch, actually.",
     ctaAddArchive: "Adicionar um AU ao arquivo",
     ctaBrowseTweets: "Ver tweets ↓",
     browseHeading: "Explorar",
@@ -1053,6 +1063,8 @@ const MESSAGES = {
       "A little about why I made this: I was blown away by how much time and effort AU authors put into worldbuilding, thinking about details like which Glock doesn't have a serrated tip, cleaning the Glock, organizing chats and tweets, and I wanted to give them the spotlight they deserve. Think of it as a mini AO3, but for Twitter AU's :)",
     transparencyNoteTitle: "Transparency note",
     transparencyNoteBody: `<p>All AU's are welcome. If yours isn't listed here, send me a tweet.</p><p>The first major wave of inclusion focused on full AU's, not mini-AU' s, but now I'm including every kind of AU. The only requirement is that it lives on Twitter as a typical AU thread, not as a link to a fanfic site like AO3 or Wattpad.</p><p>In general, an AU reaches me in three ways:</p><ul><li>the algorithm</li><li>you, the author, or someone else sharing a link with me</li><li>searching for <code>"au" "loquinha"</code> on Twitter</li></ul>`,
+    gringaNoteTitle: "",
+    gringaNoteBody: "",
     ctaAddArchive: "Add an AU to the archive",
     ctaBrowseTweets: "Browse tweets ↓",
     browseHeading: "Browse",
@@ -1159,6 +1171,11 @@ function applyStaticI18n() {
   document.getElementById("back-to-top")?.setAttribute("aria-label", tr("backToTopAria"));
   document.getElementById("reading-filter-row")?.setAttribute("aria-label", tr("readingFilterGroupAria"));
   updateLastUpdatedLine();
+  const gringaNote = document.getElementById("gringa-note");
+  if (gringaNote) {
+    const g = tr("gringaNoteBody");
+    gringaNote.hidden = !g || !String(g).trim();
+  }
 }
 
 function updateLastUpdatedLine() {
