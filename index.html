@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
+  <link rel="preconnect" href="https://platform.twitter.com" crossorigin />
+  <link rel="dns-prefetch" href="https://syndication.twitter.com" />
+
   <!-- Twitter widgets: queue callbacks before async script loads -->
   <script>
     window.twttr = (function (d, s, id) {
@@ -2062,6 +2065,30 @@ function applyReadingFilter(list) {
   return list;
 }
 
+/** After want/read state is saved: would this tweet still appear for the active reading-list pill? */
+function tweetStillInReadingFilter(tw) {
+  return applyReadingFilter([tw]).length === 1;
+}
+
+function patchWantReadButtons(article) {
+  const id = Number(article.dataset.tweetId);
+  if (Number.isNaN(id)) return;
+  const wantOn = wantTweetIds.has(id);
+  const readOn = readTweetIds.has(id);
+  const wantBtn = article.querySelector(".action-want");
+  const readBtn = article.querySelector(".action-read");
+  if (wantBtn) {
+    wantBtn.classList.toggle("is-on", wantOn);
+    wantBtn.setAttribute("aria-pressed", wantOn ? "true" : "false");
+    wantBtn.textContent = wantOn ? "♥" : "♡";
+  }
+  if (readBtn) {
+    readBtn.classList.toggle("is-on", readOn);
+    readBtn.setAttribute("aria-pressed", readOn ? "true" : "false");
+    readBtn.textContent = readOn ? "✓" : "□";
+  }
+}
+
 function clearShuffleRest() {
   shuffledOrderIds = null;
 }
@@ -2334,7 +2361,8 @@ function initAuthorFilter() {
 
 /** Lazy X embeds: disconnect before each full re-render. */
 const embedIntersectionObservers = [];
-const INITIAL_EMBED_BATCH = 12;
+/** Eager loads first N cards; rest use IntersectionObserver (PAGE_SIZE stays 12). */
+const INITIAL_EMBED_BATCH = 6;
 
 function disconnectEmbedObservers() {
   while (embedIntersectionObservers.length) {
@@ -2649,7 +2677,13 @@ function initReadingListUi() {
       else readTweetIds.add(id);
       saveTweetIdSet(READ_IDS_KEY, readTweetIds);
     }
-    render();
+
+    const tw = TWEETS.find((t) => t.id === id);
+    if (!tw || !tweetStillInReadingFilter(tw)) {
+      render();
+    } else {
+      patchWantReadButtons(article);
+    }
   });
 }
 
