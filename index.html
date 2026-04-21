@@ -488,6 +488,52 @@
       cursor: not-allowed;
       pointer-events: none;
     }
+    .results-shuffle .btn.is-on {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      border-color: transparent;
+      color: #fff;
+    }
+    .search-panel {
+      max-width: 1100px;
+      margin: 10px auto 0;
+      padding: 0 24px;
+    }
+    .search-panel[hidden] {
+      display: none !important;
+    }
+    .search-panel-inner {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .search-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin: 0 0 10px;
+    }
+    .search-panel-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .search-panel-row input[type="search"] {
+      flex: 1 1 200px;
+      min-width: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text);
+    }
+    .search-panel-row input[type="search"]:focus {
+      outline: 2px solid rgba(209, 104, 163, 0.45);
+      outline-offset: 1px;
+    }
 
     /* ── Back to top ── */
     .back-to-top {
@@ -935,6 +981,7 @@
         justify-content: center;
         margin-top: 4px;
       }
+      .search-panel { padding-left: 16px; padding-right: 16px; }
     }
   </style>
 </head>
@@ -1004,8 +1051,21 @@
     <p class="last-updated" id="last-updated-line" aria-live="polite"></p>
   </div>
   <div class="results-shuffle" id="shuffle-controls" role="group" aria-label="">
-    <button type="button" class="btn btn-ghost" id="shuffle-rest-btn" data-i18n="shuffleRestBtn">Embaralhar o restante</button>
+    <button type="button" class="btn btn-ghost" id="filter-editors-only-btn" aria-pressed="false" data-i18n="filterEditorsOnlyBtn">Só curadoria</button>
+    <button type="button" class="btn btn-ghost" id="search-toggle-btn" aria-expanded="false" aria-controls="search-panel" data-i18n="searchToggleBtn">Buscar</button>
+    <button type="button" class="btn btn-ghost" id="shuffle-rest-btn" data-i18n="shuffleRestBtn">Embaralhar tudo</button>
     <button type="button" class="btn btn-ghost" id="shuffle-reset-btn" data-i18n="shuffleResetBtn" disabled>Ordem padrão</button>
+  </div>
+</div>
+
+<div class="search-panel" id="search-panel" hidden>
+  <div class="search-panel-inner">
+    <p class="search-hint" id="search-hint" data-i18n="searchHint"></p>
+    <div class="search-panel-row">
+      <input type="search" id="archive-search-input" autocomplete="off" enterkeyhint="search" />
+      <button type="button" class="btn btn-ghost" id="archive-search-apply" data-i18n="searchApply">Aplicar</button>
+      <button type="button" class="btn btn-ghost" id="archive-search-clear" data-i18n="searchClear">Limpar</button>
+    </div>
   </div>
 </div>
 
@@ -1126,15 +1186,23 @@ const MESSAGES = {
     emptyFilterTitle: "Nenhum tweet para essa seleção",
     emptyFilterClear: "Limpar autores",
     emptyVisibleTitle: "Nenhum tweet corresponde aos filtros atuais.",
+    emptySearchTitle: "Nenhum tweet corresponde à sua busca.",
     emptyClearAllFilters: "Limpar filtros",
+    filterEditorsOnlyBtn: "Só curadoria",
+    searchToggleBtn: "Buscar",
+    searchPlaceholder: "@autora, link do tweet ou ID do status",
+    searchHint:
+      "A busca usa só os dados do arquivo (autor, URL/ID do tweet e etiquetas como “mini AU”). O texto dos posts fica dentro do widget do X (iframe de outro site), então o navegador não deixa esta página ler o conteúdo do tweet para buscar por palavras do AU.",
+    searchApply: "Aplicar",
+    searchClear: "Limpar busca",
     readingFilterLabel: "Lista de leitura",
     readingFilterGroupAria: "Filtrar por lista de leitura",
     readingFilterAll: "Todos",
     readingFilterWant: "Quero ler",
     readingFilterRead: "Lidos",
     readingFilterUnread: "Não lidos",
-    shuffleGroupAria: "Ordem da lista (fora da escolha da curadoria)",
-    shuffleRestBtn: "Embaralhar o restante",
+    shuffleGroupAria: "Ordem da lista e filtros rápidos",
+    shuffleRestBtn: "Embaralhar tudo",
     shuffleResetBtn: "Ordem padrão",
     actionWantAria: "Quero ler",
     actionReadAria: "Marcar como lido",
@@ -1196,15 +1264,23 @@ const MESSAGES = {
     emptyFilterTitle: "No tweets for this author selection",
     emptyFilterClear: "Clear authors",
     emptyVisibleTitle: "No tweets match the current filters.",
+    emptySearchTitle: "No tweets match your search.",
     emptyClearAllFilters: "Clear filters",
+    filterEditorsOnlyBtn: "Editor's picks",
+    searchToggleBtn: "Search",
+    searchPlaceholder: "@handle, tweet URL, or status id",
+    searchHint:
+      "Search only uses archive fields (author, tweet URL/status id, and tags like “mini AU”). The tweet text lives inside X’s embedded iframe (another site’s document), so this page cannot read thread wording to search it.",
+    searchApply: "Apply",
+    searchClear: "Clear search",
     readingFilterLabel: "Reading list",
     readingFilterGroupAria: "Filter by reading list",
     readingFilterAll: "All",
     readingFilterWant: "Want to read",
     readingFilterRead: "Read",
     readingFilterUnread: "Unread",
-    shuffleGroupAria: "Order (excluding editor's picks)",
-    shuffleRestBtn: "Shuffle the rest",
+    shuffleGroupAria: "List order and quick filters",
+    shuffleRestBtn: "Shuffle all",
     shuffleResetBtn: "Default order",
     actionWantAria: "Want to read",
     actionReadAria: "Mark as read",
@@ -1294,6 +1370,8 @@ function applyStaticI18n() {
   document.getElementById("back-to-top")?.setAttribute("aria-label", tr("backToTopAria"));
   document.getElementById("reading-filter-row")?.setAttribute("aria-label", tr("readingFilterGroupAria"));
   document.getElementById("shuffle-controls")?.setAttribute("aria-label", tr("shuffleGroupAria"));
+  const searchInp = document.getElementById("archive-search-input");
+  if (searchInp) searchInp.placeholder = tr("searchPlaceholder");
   updateLastUpdatedLine();
   const gringaNote = document.getElementById("gringa-note");
   if (gringaNote) {
@@ -1915,8 +1993,14 @@ const READING_LOCAL_TOAST_SHOWN_KEY = "loquinha-reading-notice-dismissed";
 /** `all` | `want` | `read` | `unread` - combined with author filter in `visibleTweets()`. */
 let readingFilter = "all";
 
-/** When set, non-editor tweets use this id order (editor's picks stay first, sorted by id). */
-let shuffledRestIds = null;
+/** When set, tweet cards follow this id order (full shuffled list, including editor's picks). */
+let shuffledOrderIds = null;
+
+/** Show only tweets tagged Editor's pick. */
+let editorsPickOnly = false;
+
+/** Normalized search string (author / URL / status id / tag substring). Does not search inside X embeds. */
+let searchNorm = "";
 
 const PAGE_SIZE = 12;
 let currentPage = 1;
@@ -1979,67 +2063,101 @@ function applyReadingFilter(list) {
 }
 
 function clearShuffleRest() {
-  shuffledRestIds = null;
+  shuffledOrderIds = null;
 }
 
-function shuffleRestNow() {
+function normalizeSearchQuery(s) {
+  return String(s || "").trim().toLowerCase();
+}
+
+function setSearchFromInput() {
+  const inp = document.getElementById("archive-search-input");
+  searchNorm = inp ? normalizeSearchQuery(inp.value) : "";
+}
+
+function tweetMatchesSearch(tw) {
+  if (!searchNorm) return true;
+  const q = searchNorm;
+  const handle = String(tw.author || "").toLowerCase();
+  const handleNeedle = q.replace(/^@/, "");
+  if (handleNeedle && handle.includes(handleNeedle)) return true;
+  const url = String(tw.url || "").toLowerCase();
+  if (url.includes(q)) return true;
+  if (/^\d+$/.test(q) && url.includes("/status/" + q)) return true;
+  const tags = tw.tags || [];
+  for (const tag of tags) {
+    if (String(tag).toLowerCase().includes(q)) return true;
+  }
+  return false;
+}
+
+/** After author + reading list + editor-only + search filters (order not yet applied). */
+function filteredPipeline() {
   const base = baseFilteredSortedTweets();
-  const filtered = applyReadingFilter(base);
-  const rest = filtered.filter((t) => !isEditorsPick(t));
-  if (rest.length <= 1) return false;
-  const arr = rest.slice();
+  let list = applyReadingFilter(base);
+  if (editorsPickOnly) list = list.filter(isEditorsPick);
+  if (searchNorm) list = list.filter(tweetMatchesSearch);
+  return list;
+}
+
+function shuffleAllNow() {
+  const filtered = filteredPipeline();
+  if (filtered.length <= 1) return false;
+  const arr = filtered.slice();
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     const t = arr[i];
     arr[i] = arr[j];
     arr[j] = t;
   }
-  shuffledRestIds = arr.map((t) => t.id);
+  shuffledOrderIds = arr.map((t) => t.id);
   currentPage = 1;
   return true;
 }
 
 function visibleTweets() {
-  const base = baseFilteredSortedTweets();
-  const filtered = applyReadingFilter(base);
-  const picks = filtered.filter(isEditorsPick).sort((a, b) => (a.id || 0) - (b.id || 0));
-  const rest = filtered.filter((t) => !isEditorsPick(t));
-  let restOrdered;
-  if (!shuffledRestIds) {
-    restOrdered = rest.slice().sort((a, b) => (a.id || 0) - (b.id || 0));
-  } else {
-    const restIds = new Set(rest.map((t) => t.id));
-    const order = shuffledRestIds.filter((id) => restIds.has(id));
-    const extras = rest
-      .map((t) => t.id)
-      .filter((id) => !order.includes(id))
-      .sort((a, b) => a - b);
-    const finalOrder = [...order, ...extras];
-    const indexMap = new Map(finalOrder.map((id, i) => [id, i]));
-    restOrdered = rest.slice().sort((a, b) => {
-      const ia = indexMap.has(a.id) ? indexMap.get(a.id) : 999999;
-      const ib = indexMap.has(b.id) ? indexMap.get(b.id) : 999999;
-      if (ia !== ib) return ia - ib;
-      return (a.id || 0) - (b.id || 0);
-    });
+  const filtered = filteredPipeline();
+  if (!shuffledOrderIds) {
+    const picks = filtered.filter(isEditorsPick).sort((a, b) => (a.id || 0) - (b.id || 0));
+    const rest = filtered.filter((t) => !isEditorsPick(t)).sort((a, b) => (a.id || 0) - (b.id || 0));
+    return [...picks, ...rest];
   }
-  return [...picks, ...restOrdered];
+  const filteredIds = new Set(filtered.map((t) => t.id));
+  const order = shuffledOrderIds.filter((id) => filteredIds.has(id));
+  const extras = filtered
+    .map((t) => t.id)
+    .filter((id) => !order.includes(id))
+    .sort((a, b) => a - b);
+  const finalOrder = [...order, ...extras];
+  const indexMap = new Map(finalOrder.map((id, i) => [id, i]));
+  return filtered.slice().sort((a, b) => {
+    const ia = indexMap.has(a.id) ? indexMap.get(a.id) : 999999;
+    const ib = indexMap.has(b.id) ? indexMap.get(b.id) : 999999;
+    if (ia !== ib) return ia - ib;
+    return (a.id || 0) - (b.id || 0);
+  });
 }
 
 function updateShuffleUi() {
   const shuffleBtn = document.getElementById("shuffle-rest-btn");
   const resetBtn = document.getElementById("shuffle-reset-btn");
+  const edBtn = document.getElementById("filter-editors-only-btn");
   if (!shuffleBtn || !resetBtn) return;
   if (TWEETS.length === 0) {
     shuffleBtn.disabled = true;
     resetBtn.disabled = true;
+    if (edBtn) edBtn.disabled = true;
     return;
   }
-  const base = baseFilteredSortedTweets();
-  const filtered = applyReadingFilter(base);
-  const nRest = filtered.filter((t) => !isEditorsPick(t)).length;
-  shuffleBtn.disabled = nRest <= 1;
-  resetBtn.disabled = !shuffledRestIds;
+  const list = filteredPipeline();
+  shuffleBtn.disabled = list.length <= 1;
+  resetBtn.disabled = !shuffledOrderIds;
+  if (edBtn) {
+    const nPicks = TWEETS.filter(isEditorsPick).length;
+    edBtn.disabled = nPicks === 0;
+    edBtn.classList.toggle("is-on", editorsPickOnly);
+    edBtn.setAttribute("aria-pressed", editorsPickOnly ? "true" : "false");
+  }
 }
 
 function syncReadingFilterPills() {
@@ -2104,6 +2222,14 @@ function resetAllListFilters() {
   const wrap = document.getElementById("author-filter-tags");
   if (wrap) wrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
   readingFilter = "all";
+  editorsPickOnly = false;
+  searchNorm = "";
+  const inp = document.getElementById("archive-search-input");
+  if (inp) inp.value = "";
+  const panel = document.getElementById("search-panel");
+  const searchToggle = document.getElementById("search-toggle-btn");
+  if (panel) panel.hidden = true;
+  if (searchToggle) searchToggle.setAttribute("aria-expanded", "false");
   currentPage = 1;
   clearShuffleRest();
   syncReadingFilterPills();
@@ -2312,8 +2438,48 @@ function renderPagination(totalPages) {
 }
 
 function initShuffleControls() {
+  document.getElementById("filter-editors-only-btn")?.addEventListener("click", () => {
+    editorsPickOnly = !editorsPickOnly;
+    clearShuffleRest();
+    currentPage = 1;
+    render();
+  });
+  const searchToggle = document.getElementById("search-toggle-btn");
+  const panel = document.getElementById("search-panel");
+  const inp = document.getElementById("archive-search-input");
+  searchToggle?.addEventListener("click", () => {
+    const willOpen = !!(panel && panel.hidden);
+    if (panel) panel.hidden = !willOpen;
+    searchToggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+    if (willOpen && inp) requestAnimationFrame(() => inp.focus());
+  });
+  document.getElementById("archive-search-apply")?.addEventListener("click", () => {
+    setSearchFromInput();
+    clearShuffleRest();
+    currentPage = 1;
+    render();
+  });
+  document.getElementById("archive-search-clear")?.addEventListener("click", () => {
+    searchNorm = "";
+    if (inp) inp.value = "";
+    clearShuffleRest();
+    currentPage = 1;
+    render();
+  });
+  inp?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      document.getElementById("archive-search-apply")?.click();
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || !panel || panel.hidden) return;
+    panel.hidden = true;
+    searchToggle?.setAttribute("aria-expanded", "false");
+  });
+
   document.getElementById("shuffle-rest-btn")?.addEventListener("click", () => {
-    if (!shuffleRestNow()) return;
+    if (!shuffleAllNow()) return;
     render();
     document.getElementById("tweets-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
@@ -2377,7 +2543,7 @@ function render() {
     grid.innerHTML = `
       <div class="empty-state">
         <span class="empty-icon">🏳️‍🌈</span>
-        <h3>${tr("emptyVisibleTitle")}</h3>
+        <h3>${tr(searchNorm ? "emptySearchTitle" : "emptyVisibleTitle")}</h3>
         <p><button type="button" class="filter-reset" style="margin:0 auto;display:block" id="empty-clear-all-filters">${tr("emptyClearAllFilters")}</button></p>
       </div>`;
     document.getElementById("empty-clear-all-filters")?.addEventListener("click", resetAllListFilters);
