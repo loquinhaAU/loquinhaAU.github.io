@@ -1413,6 +1413,7 @@ function initBackToTop() {
 /* ════════════════════════════════
    Tweet data: id, author (X handle), url (canonical twitter.com/…/status/id, no ?s=…); optional tags: "mini AU", "Editor's pick".
    Duplicates (same id or same /status/… id in url) are dropped; first occurrence wins.
+   Rows with both author and url empty are placeholders (reserved id); they are ignored for counts, filters, and the grid.
    ════════════════════════════════ */
 function tweetUrlStatusKey(u) {
   if (!u || typeof u !== "string") return "";
@@ -1969,8 +1970,125 @@ const TWEETS = dedupeTweets([
     "id": 100,
     "author": "euamoacaii",
     "url": "https://x.com/euamoacaii/status/2041891984344863050"
+  },
+  {
+    "id": 101,
+    "author": "medvedjucs",
+    "url": "https://x.com/medvedjucs/status/2033251132504469936"
+  },
+  {
+    "id": 102,
+    "author": "comentandosfv",
+    "url": "https://x.com/comentandosfv/status/2033710339221532685"
+  },
+  {
+    "id": 103,
+    "author": "medguillens",
+    "url": "https://x.com/medguillens/status/2039045543565939040"
+  },
+  {
+    "id": 104,
+    "author": "medguillens",
+    "url": "https://x.com/medguillens/status/2038660133404721575"
+  },
+  {
+    "id": 105,
+    "author": "medguillens",
+    "url": "https://x.com/medguillens/status/2030790660509364549"
+  },
+  {
+    "id": 106,
+    "author": "matimedvew",
+    "url": "https://x.com/matimedvew/status/2044614814916325692",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 107,
+    "author": "lobotions",
+    "url": "https://x.com/lobotions/status/2043106707044245658"
+  }, 
+  {
+    "id": 108,
+    "author": "matimedvew",
+    "url": "https://x.com/matimedvew/status/2041893205621215309",
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 109,
+    "author": "americannbitch",
+    "url": "https://x.com/americannbitch/status/2041890953217135022"
+  },
+  {
+    "id": 110,
+    "author": "romanialimns",
+    "url": "https://x.com/romanialimns/status/2043311737093468386"
+  },
+  {
+    "id": 111,
+    "author": "frenesillen",
+    "url": "https://x.com/frenesillen/status/2043724551889014797"
+  },
+  {
+    "id": 112,
+    "author": "lobotions",
+    "url": "https://x.com/lobotions/status/2042373863258939858"
+  },
+  {
+    "id": 113,
+    "author": "_luiizacardoso",
+    "url": "https://x.com/_luiizacardoso/status/2042615221424902249"
+  },
+  {
+    "id": 114,
+    "author": "dearalanis",
+    "url": "https://x.com/dearalanis/status/2043443930629280150"
+  }
+  {
+    "id": 115,
+    "author": "faiskadaroit",
+    "url": "https://x.com/faiskadaroit/status/2029353315868258534"
+    "tags": [
+      "mini AU"
+    ]
+  },
+  {
+    "id": 116,
+    "author": "",
+    "url": ""
+  },
+  {
+    "id": 117,
+    "author": "",
+    "url": ""
+  },
+  {
+    "id": 118,
+    "author": "",
+    "url": ""
+  },
+  {
+    "id": 119,
+    "author": "",
+    "url": ""
+  },
+  {
+    "id": 120,
+    "author": "",
+    "url": ""
   }
 ]);
+
+function isTweetPlaceholder(tw) {
+  return !String(tw.author || "").trim() && !String(tw.url || "").trim();
+}
+
+function filledTweets() {
+  return TWEETS.filter((t) => !isTweetPlaceholder(t));
+}
 
 function profileUrl(handle) {
   return "https://twitter.com/" + encodeURIComponent(handle);
@@ -2035,9 +2153,13 @@ wantTweetIds = loadTweetIdSet(WANT_IDS_KEY);
 readTweetIds = loadTweetIdSet(READ_IDS_KEY);
 
 function uniqueAuthorsSorted() {
-  return [...new Set(TWEETS.map((t) => t.author))].sort((a, b) =>
-    a.localeCompare(b, undefined, { sensitivity: "base" })
-  );
+  return [
+    ...new Set(
+      filledTweets()
+        .map((t) => t.author)
+        .filter((a) => String(a).trim())
+    ),
+  ].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 }
 
 function isEditorsPick(tw) {
@@ -2045,10 +2167,9 @@ function isEditorsPick(tw) {
 }
 
 function baseFilteredSortedTweets() {
+  const src = filledTweets();
   const list =
-    activeAuthors.size === 0
-      ? TWEETS.slice()
-      : TWEETS.filter((t) => activeAuthors.has(t.author));
+    activeAuthors.size === 0 ? src.slice() : src.filter((t) => activeAuthors.has(t.author));
   list.sort((a, b) => {
     const pa = isEditorsPick(a) ? 1 : 0;
     const pb = isEditorsPick(b) ? 1 : 0;
@@ -2170,7 +2291,7 @@ function updateShuffleUi() {
   const resetBtn = document.getElementById("shuffle-reset-btn");
   const edBtn = document.getElementById("filter-editors-only-btn");
   if (!shuffleBtn || !resetBtn) return;
-  if (TWEETS.length === 0) {
+  if (filledTweets().length === 0) {
     shuffleBtn.disabled = true;
     resetBtn.disabled = true;
     if (edBtn) edBtn.disabled = true;
@@ -2180,7 +2301,7 @@ function updateShuffleUi() {
   shuffleBtn.disabled = list.length <= 1;
   resetBtn.disabled = !shuffledOrderIds;
   if (edBtn) {
-    const nPicks = TWEETS.filter(isEditorsPick).length;
+    const nPicks = filledTweets().filter(isEditorsPick).length;
     edBtn.disabled = nPicks === 0;
     edBtn.classList.toggle("is-on", editorsPickOnly);
     edBtn.setAttribute("aria-pressed", editorsPickOnly ? "true" : "false");
@@ -2548,7 +2669,7 @@ function render() {
 
   disconnectEmbedObservers();
 
-  if (TWEETS.length === 0) {
+  if (filledTweets().length === 0) {
     if (pagEl) {
       pagEl.hidden = true;
       pagEl.innerHTML = "";
