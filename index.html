@@ -324,8 +324,14 @@
     }
     .filter-reset:hover { color: var(--c1); }
 
-    .btn-filter-trigger {
+    .filter-triggers {
       margin-left: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .btn-filter-trigger {
       flex-shrink: 0;
     }
 
@@ -420,13 +426,15 @@
       background: #fff;
     }
 
-    .author-filter-tags {
+    .author-filter-tags,
+    .tag-filter-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
     }
-    .author-filter-tags .tag {
+    .author-filter-tags .tag,
+    .tag-filter-tags .tag {
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -442,12 +450,148 @@
       user-select: none;
       font-family: 'DM Sans', sans-serif;
     }
-    .author-filter-tags .tag:hover { border-color: var(--accent); color: var(--c6); }
-    .author-filter-tags .tag.active {
+    .author-filter-tags .tag:hover,
+    .tag-filter-tags .tag:hover { border-color: var(--accent); color: var(--c6); }
+    .author-filter-tags .tag.active,
+    .tag-filter-tags .tag.active {
       background: linear-gradient(135deg, var(--c5), var(--c6));
       border-color: transparent;
       color: #fff;
       box-shadow: 0 2px 10px rgba(180,32,117,0.25);
+    }
+
+    /* ── Tag (trope) filter drawer (right panel) ── */
+    .tag-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 280;
+      background: rgba(40, 28, 32, 0.38);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+    }
+    .tag-drawer-backdrop.is-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .tag-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 290;
+      width: min(380px, 92vw);
+      height: 100%;
+      height: 100dvh;
+      max-height: 100vh;
+      background: var(--bg);
+      border-left: 1.5px solid var(--border);
+      box-shadow: -12px 0 40px rgba(80, 40, 60, 0.18);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(105%);
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tag-drawer.is-open {
+      transform: translateX(0);
+    }
+    body.tag-drawer-open {
+      overflow: hidden;
+    }
+    .tag-drawer-top {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 16px 12px;
+      padding-top: max(18px, env(safe-area-inset-top));
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .tag-drawer-top h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .tag-drawer-close {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 10px;
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    .tag-drawer-close:hover {
+      background: var(--border);
+      color: var(--c6);
+    }
+    .tag-drawer-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 16px 20px;
+    }
+    .tag-drawer-hint {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin: 0 0 12px;
+    }
+    .tag-drawer-foot {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      border-top: 1.5px solid var(--border);
+      background: #fff;
+    }
+
+    /* ── Trope pills on tweet cards ── */
+    .tweet-card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 6px;
+      padding: 4px 14px 6px;
+    }
+    .tweet-trope-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 500;
+      line-height: 1.2;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .tweet-trope-tag:hover {
+      border-color: var(--accent);
+      color: var(--c6);
+      background: #fff;
+    }
+    .tweet-trope-tag.is-on {
+      background: linear-gradient(135deg, var(--c5), var(--c6));
+      border-color: transparent;
+      color: #fff;
+    }
+    .tweet-trope-tag:focus-visible {
+      outline: 2px solid rgba(209, 104, 163, 0.55);
+      outline-offset: 1px;
     }
 
     /* ── Results bar ── */
@@ -1028,13 +1172,19 @@
 <section class="filters-section" id="tweets">
   <div class="filters-header">
     <h2 data-i18n="browseHeading">Explorar</h2>
-    <button type="button" class="btn btn-ghost btn-filter-trigger" id="author-drawer-open"
-      aria-expanded="false" aria-controls="author-drawer">
-      <span id="author-filter-open-label">Filtrar autores</span>
-    </button>
+    <div class="filter-triggers">
+      <button type="button" class="btn btn-ghost btn-filter-trigger" id="author-drawer-open"
+        aria-expanded="false" aria-controls="author-drawer">
+        <span id="author-filter-open-label">Filtrar autores</span>
+      </button>
+      <button type="button" class="btn btn-ghost btn-filter-trigger" id="tag-drawer-open"
+        aria-expanded="false" aria-controls="tag-drawer">
+        <span id="tag-filter-open-label">Filtrar tropes</span>
+      </button>
+    </div>
   </div>
-  <p class="filters-coming-soon" data-i18n="filtersComingSoon" data-i18n-html="1">
-    <strong>Em breve:</strong> filtros por trope / universo. Use <strong>Filtrar autores</strong> para restringir pelo @ no X.
+  <p class="filters-coming-soon" data-i18n="filtersHelp" data-i18n-html="1">
+    Combine <strong>Filtrar autores</strong> e <strong>Filtrar tropes</strong> para refinar a lista. Etiquetas de trope ficam visíveis em cada card e podem ser clicadas para filtrar.
   </p>
 </section>
 
@@ -1053,6 +1203,24 @@
     <span class="filter-count" id="author-filter-count">Todas</span>
     <button type="button" class="filter-reset" id="author-filter-clear" data-i18n="clearAuthors">Limpar autores</button>
     </div>
+</aside>
+
+<!-- Trope-tag filter: right drawer (opens from Browse) -->
+<div class="tag-drawer-backdrop" id="tag-drawer-backdrop" aria-hidden="true"></div>
+<aside class="tag-drawer" id="tag-drawer" role="dialog" aria-modal="true"
+  aria-labelledby="tag-drawer-title" aria-hidden="true" tabindex="-1">
+  <div class="tag-drawer-top">
+    <h3 id="tag-drawer-title" data-i18n="tagDrawerTitle">Filtrar por trope</h3>
+    <button type="button" class="tag-drawer-close" id="tag-drawer-close" aria-label="Fechar">×</button>
+  </div>
+  <div class="tag-drawer-scroll">
+    <p class="tag-drawer-hint" data-i18n="tagDrawerHint">Selecione um ou mais tropes. Mostramos AUs que tenham qualquer um deles.</p>
+    <div class="tag-filter-tags" id="tag-filter-tags" role="group" aria-label="Tropes"></div>
+  </div>
+  <div class="tag-drawer-foot">
+    <span class="filter-count" id="tag-filter-count">Todos</span>
+    <button type="button" class="filter-reset" id="tag-filter-clear" data-i18n="clearTags">Limpar tropes</button>
+  </div>
 </aside>
 
 <!-- Results bar -->
@@ -1180,16 +1348,25 @@ const MESSAGES = {
     ctaAddArchive: "Adicionar um AU ao arquivo",
     ctaBrowseTweets: "Ver tweets ↓",
     browseHeading: "Explorar",
-    filtersComingSoon:
-      "<strong>Em breve:</strong> filtros por trope / universo. Use <strong>Filtrar autores</strong> para restringir pelo @ no X.",
+    filtersHelp:
+      "Combine <strong>Filtrar autores</strong> e <strong>Filtrar tropes</strong> para refinar a lista. As etiquetas em cada card podem ser clicadas para filtrar.",
     drawerTitle: "Filtrar por autora/autor",
     drawerCloseAria: "Fechar painel",
     drawerAuthorsAria: "Autores",
+    drawerTagsAria: "Tropes",
     clearAuthors: "Limpar autores",
     filterAuthors: "Filtrar autores",
     filterAllAuthors: "Todas",
     filterOneAuthor: "1 perfil",
     filterNAuthors: "{n} perfis",
+    tagDrawerTitle: "Filtrar por trope",
+    tagDrawerHint: "Selecione um ou mais tropes. Mostramos AUs que tenham qualquer um deles.",
+    filterTags: "Filtrar tropes",
+    filterAllTags: "Todos",
+    filterOneTag: "1 trope",
+    filterNTags: "{n} tropes",
+    clearTags: "Limpar tropes",
+    cardTagsAria: "Tropes deste AU",
     resultsOne: "<strong>{n}</strong> tweet exibido",
     resultsMany: "<strong>{n}</strong> tweets exibidos",
     emptyNoTweetsTitle: "Ainda não há tweets no arquivo",
@@ -1259,16 +1436,25 @@ const MESSAGES = {
     ctaAddArchive: "Add an AU to the archive",
     ctaBrowseTweets: "Browse tweets ↓",
     browseHeading: "Browse",
-    filtersComingSoon:
-      "<strong>Coming soon:</strong> trope / universe filters. Use <strong>Filter authors</strong> to narrow by X handle.",
+    filtersHelp:
+      "Combine <strong>Filter authors</strong> and <strong>Filter tropes</strong> to narrow the list. Trope tags on each card are clickable to filter.",
     drawerTitle: "Filter by author",
     drawerCloseAria: "Close panel",
     drawerAuthorsAria: "Authors",
+    drawerTagsAria: "Tropes",
     clearAuthors: "Clear authors",
     filterAuthors: "Filter authors",
     filterAllAuthors: "All authors",
     filterOneAuthor: "1 author",
     filterNAuthors: "{n} authors",
+    tagDrawerTitle: "Filter by trope",
+    tagDrawerHint: "Pick one or more tropes. We show AUs that have any of them.",
+    filterTags: "Filter tropes",
+    filterAllTags: "All tropes",
+    filterOneTag: "1 trope",
+    filterNTags: "{n} tropes",
+    clearTags: "Clear tropes",
+    cardTagsAria: "Tropes for this AU",
     resultsOne: "<strong>{n}</strong> tweet shown",
     resultsMany: "<strong>{n}</strong> tweets shown",
     emptyNoTweetsTitle: "No tweets in the archive yet",
@@ -1344,6 +1530,7 @@ function setLang(next) {
   applyStaticI18n();
   syncLangButtons();
   syncAuthorFilterCount();
+  syncTagFilterCount();
   syncReadingFilterPills();
   render();
 }
@@ -1377,6 +1564,8 @@ function applyStaticI18n() {
   });
   document.getElementById("author-drawer-close")?.setAttribute("aria-label", tr("drawerCloseAria"));
   document.getElementById("author-filter-tags")?.setAttribute("aria-label", tr("drawerAuthorsAria"));
+  document.getElementById("tag-drawer-close")?.setAttribute("aria-label", tr("drawerCloseAria"));
+  document.getElementById("tag-filter-tags")?.setAttribute("aria-label", tr("drawerTagsAria"));
   const notifyLink = document.getElementById("notify-intent-link");
   if (notifyLink) notifyLink.href = notifyIntentHref();
   document.title = tr("pageTitle");
@@ -1452,32 +1641,33 @@ const TWEETS = dedupeTweets([
     "id": 1,
     "author": "medveguillen",
     "url": "https://twitter.com/medveguillen/status/2015595707491598362",
-    "tags": [
-      "Editor's pick"
-    ]
+    "metaTags": ["Editor's pick"],
+    "tags": ["Enemies to Lovers", "Fake Dating", "Celebrity AU", "Public Relationship", "Pining", "Forced Proximity"]
   },
   {
     "id": 2,
     "author": "meow_wildcat",
     "url": "https://twitter.com/meow_wildcat/status/2035884462001492228",
-    "tags": [
-      "Editor's pick"
-    ]
+    "metaTags": ["Editor's pick"],
+    "tags": ["Best Friends to Lovers", "Unrequited Love", "Childhood Friends", "Pining", "Slow Burn", "Love Triangle", "Engaged to Someone Else"]
   },
   {
     "id": 3,
     "author": "zzzon0",
-    "url": "https://twitter.com/zzzon0/status/2022834586699346344"
+    "url": "https://twitter.com/zzzon0/status/2022834586699346344",
+    "tags": ["Celebrity AU", "Fake Dating", "Scandal", "Rich/Poor Dynamics", "Forced Proximity"]
   },
   {
     "id": 4,
     "author": "mercedisx",
-    "url": "https://twitter.com/mercedisx/status/2025737461180084249"
+    "url": "https://twitter.com/mercedisx/status/2025737461180084249",
+    "tags": ["Workplace AU", "Boss/Employee Relationship", "Slow Burn", "Forbidden Love"]
   },
   {
     "id": 5,
     "author": "_luulli",
-    "url": "https://twitter.com/_luulli/status/2031154819835031571"
+    "url": "https://twitter.com/_luulli/status/2031154819835031571",
+    "tags": ["Fake Dating", "Best Friends to Lovers", "Celebrity AU", "Pining", "Public Relationship"]
   },
   {
     "id": 6,
@@ -1487,253 +1677,298 @@ const TWEETS = dedupeTweets([
   {
     "id": 7,
     "author": "ringsmyoui",
-    "url": "https://twitter.com/ringsmyoui/status/2011176611140284794"
+    "url": "https://twitter.com/ringsmyoui/status/2011176611140284794",
+    "tags": ["Enemies to Lovers", "Police AU", "Forced Proximity", "Rivals to Lovers", "Emotional Repression", "Second Chance Romance"]
   },
   {
     "id": 8,
     "author": "fuckedops",
-    "url": "https://twitter.com/fuckedops/status/2030805232888828129"
+    "url": "https://twitter.com/fuckedops/status/2030805232888828129",
+    "tags": ["Strangers to Lovers", "Police AU", "Forced Proximity", "Pregnancy", "Hurt/Comfort"]
   },
   {
     "id": 9,
     "author": "kccwift",
-    "url": "https://twitter.com/kccwift/status/2014485662343242194"
+    "url": "https://twitter.com/kccwift/status/2014485662343242194",
+    "tags": ["Soulmates", "Pining", "Slow Burn"]
   },
   {
     "id": 10,
     "author": "baemoonys",
-    "url": "https://twitter.com/baemoonys/status/1983718419204862300"
+    "url": "https://twitter.com/baemoonys/status/1983718419204862300",
+    "tags": ["Strangers to Lovers", "Police AU", "Opposites Attract", "Rich/Poor Dynamics"]
   },
   {
     "id": 11,
     "author": "favmarrua",
-    "url": "https://twitter.com/favmarrua/status/2025724879081742431"
+    "url": "https://twitter.com/favmarrua/status/2025724879081742431",
+    "tags": ["Celebrity AU", "Workplace AU", "Pining", "Scandal"]
   },
   {
     "id": 12,
     "author": "kccwift",
-    "url": "https://twitter.com/kccwift/status/2023160303135911958"
+    "url": "https://twitter.com/kccwift/status/2023160303135911958",
+    "tags": ["Second Chance Romance", "Celebrity AU", "Fake Dating", "Reunion", "Childhood Friends", "Scandal"]
   },
   {
     "id": 13,
     "author": "gravitylwsers",
-    "url": "https://twitter.com/gravitylwsers/status/2006884047319183664"
+    "url": "https://twitter.com/gravitylwsers/status/2006884047319183664",
+    "tags": ["Second Chance Romance", "College/University AU", "Reunion", "Pining", "Angst"]
   },
   {
     "id": 14,
     "author": "sunisbrave",
-    "url": "https://twitter.com/sunisbrave/status/2018357012669534456"
+    "url": "https://twitter.com/sunisbrave/status/2018357012669534456",
+    "tags": ["Strangers to Lovers", "Second Chance Romance", "Angst", "Hurt/Comfort"]
   },
   {
     "id": 15,
     "author": "bearnaynie",
-    "url": "https://twitter.com/bearnaynie/status/2021956550731112852"
+    "url": "https://twitter.com/bearnaynie/status/2021956550731112852",
+    "tags": ["Best Friends to Lovers", "Fake Dating", "Pining", "Slow Burn"]
   },
   {
     "id": 16,
     "author": "cassigallery",
-    "url": "https://twitter.com/cassigallery/status/2018880628159365298"
+    "url": "https://twitter.com/cassigallery/status/2018880628159365298",
+    "tags": ["Enemies to Lovers", "Police AU", "Workplace AU", "Forbidden Love", "Investigation"]
   },
   {
     "id": 17,
     "author": "oazudam",
-    "url": "https://twitter.com/oazudam/status/2021968991623827676"
+    "url": "https://twitter.com/oazudam/status/2021968991623827676",
+    "tags": ["Celebrity AU", "Slow Burn", "Workplace AU"]
   },
   {
     "id": 18,
     "author": "uplandga",
-    "url": "https://twitter.com/uplandga/status/2020574613302825031"
+    "url": "https://twitter.com/uplandga/status/2020574613302825031",
+    "tags": ["Enemies to Lovers", "Accidental Marriage", "Forced Proximity", "Comedy"]
   },
   {
     "id": 19,
     "author": "favsdaso",
     "url": "https://twitter.com/favsdaso/status/2017369840504262923",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"],
+    "tags": ["Second Chance Romance", "Reunion", "Pining", "Angst"]
   },
   {
     "id": 20,
     "author": "samdpx_",
-    "url": "https://twitter.com/samdpx_/status/2019565636121420279"
+    "url": "https://twitter.com/samdpx_/status/2019565636121420279",
+    "tags": ["Sports AU", "Enemies to Lovers", "Forced Proximity", "Workplace AU", "Slow Burn"]
   },
   {
     "id": 21,
     "author": "mindlocket",
-    "url": "https://twitter.com/mindlocket/status/2021970851705299167"
+    "url": "https://twitter.com/mindlocket/status/2021970851705299167",
+    "tags": ["Celebrity AU", "Scandal", "Pining", "Angst", "Public Relationship"]
   },
   {
     "id": 22,
     "author": "lilicamcgrath",
-    "url": "https://twitter.com/lilicamcgrath/status/2004919374315225368"
+    "url": "https://twitter.com/lilicamcgrath/status/2004919374315225368",
+    "tags": ["Forbidden Love", "Rich/Poor Dynamics", "Angst", "Pining"]
   },
   {
     "id": 23,
     "author": "loresafic",
-    "url": "https://twitter.com/loresafic/status/2025794403231486220"
+    "url": "https://twitter.com/loresafic/status/2025794403231486220",
+    "tags": ["Arranged Marriage", "Forbidden Love", "Rich/Poor Dynamics", "Wedding AU", "Pining"]
   },
   {
     "id": 24,
     "author": "isa_solovioff",
     "url": "https://twitter.com/isa_solovioff/status/1984703246670119105",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"],
+    "tags": ["Exes to Lovers", "Second Chance Romance", "Single Parent", "Hurt/Comfort"]
   },
   {
     "id": 25,
     "author": "lilicamcgrath",
-    "url": "https://twitter.com/lilicamcgrath/status/2006917850167153085"
+    "url": "https://twitter.com/lilicamcgrath/status/2006917850167153085",
+    "tags": ["Childhood Friends", "Marriage Pact", "Friends to Lovers", "Second Chance Romance", "Reunion"]
   },
   {
     "id": 26,
     "author": "mdvdky",
-    "url": "https://twitter.com/mdvdky/status/2027062823113703426"
+    "url": "https://twitter.com/mdvdky/status/2027062823113703426",
+    "tags": ["Celebrity AU", "Police AU", "Scandal", "Hurt/Comfort", "Forced Proximity"]
   },
   {
     "id": 27,
     "author": "vrstrppen",
-    "url": "https://twitter.com/vrstrppen/status/1999615334416835059"
+    "url": "https://twitter.com/vrstrppen/status/1999615334416835059",
+    "tags": ["Holiday AU", "Small Town AU", "Second Chance Romance", "Childhood Friends", "Pining", "Reunion"]
   },
   {
     "id": 28,
     "author": "lilicamcgrath",
-    "url": "https://twitter.com/lilicamcgrath/status/2005817070924030393"
+    "url": "https://twitter.com/lilicamcgrath/status/2005817070924030393",
+    "tags": ["Fake Dating", "Best Friends to Lovers", "Holiday AU", "Pining", "Forced Proximity"]
   },
   {
     "id": 29,
     "author": "mahtristekkkkj",
-    "url": "https://twitter.com/mahtristekkkkj/status/2024682169650536663"
+    "url": "https://twitter.com/mahtristekkkkj/status/2024682169650536663",
+    "tags": ["Celebrity AU", "Strangers to Lovers", "Pining"]
   },
   {
     "id": 30,
     "author": "mjsecret_",
-    "url": "https://twitter.com/mjsecret_/status/2010565467618914624"
+    "url": "https://twitter.com/mjsecret_/status/2010565467618914624",
+    "tags": ["Second Chance Romance", "Pining", "Hurt/Comfort", "Secret Relationship"]
   },
   {
     "id": 31,
     "author": "cullwnortega",
-    "url": "https://twitter.com/cullwnortega/status/2002455869624406095"
+    "url": "https://twitter.com/cullwnortega/status/2002455869624406095",
+    "tags": ["Celebrity AU", "Pining", "Public Relationship"]
   },
   {
     "id": 32,
     "author": "luludahyo",
-    "url": "https://twitter.com/luludahyo/status/2017687999861919813"
+    "url": "https://twitter.com/luludahyo/status/2017687999861919813",
+    "tags": ["Police AU", "Slow Burn", "Forbidden Love", "Rich/Poor Dynamics", "Pining"]
   },
   {
     "id": 33,
     "author": "gravitylwsers",
-    "url": "https://twitter.com/gravitylwsers/status/2011489574040559946"
+    "url": "https://twitter.com/gravitylwsers/status/2011489574040559946",
+    "tags": ["Pining", "Second Chance Romance", "High School AU", "Angst"]
   },
   {
     "id": 34,
     "author": "baemoonys",
-    "url": "https://twitter.com/baemoonys/status/2006407807017333164"
+    "url": "https://twitter.com/baemoonys/status/2006407807017333164",
+    "tags": ["Small Town AU", "Opposites Attract", "Slow Burn", "Neighbors"]
   },
   {
     "id": 35,
     "author": "frenesillen",
-    "url": "https://twitter.com/frenesillen/status/2005637904958378366"
+    "url": "https://twitter.com/frenesillen/status/2005637904958378366",
+    "tags": ["Opposites Attract", "Single Parent", "Slow Burn", "Second Chance Romance"]
   },
   {
     "id": 36,
     "author": "mahtristekkkkj",
-    "url": "https://twitter.com/mahtristekkkkj/status/2015826250174968318"
+    "url": "https://twitter.com/mahtristekkkkj/status/2015826250174968318",
+    "tags": ["Amnesia", "Exes to Lovers", "Second Chance Romance", "Hurt/Comfort", "Angst"]
   },
   {
     "id": 37,
     "author": "medveguillen",
-    "url": "https://twitter.com/medveguillen/status/2001445810827833444"
+    "url": "https://twitter.com/medveguillen/status/2001445810827833444",
+    "tags": ["Undercover", "Investigation", "Forbidden Love", "Pining", "Mystery AU"]
   },
   {
     "id": 38,
     "author": "auloquinha",
-    "url": "https://twitter.com/auloquinha/status/2016271262327169503"
+    "url": "https://twitter.com/auloquinha/status/2016271262327169503",
+    "tags": ["Celebrity AU", "Accidental Confession", "Pining", "Scandal"]
   },
   {
     "id": 39,
     "author": "yukonsklr",
-    "url": "https://twitter.com/yukonsklr/status/2020651294768439461"
+    "url": "https://twitter.com/yukonsklr/status/2020651294768439461",
+    "tags": ["Neighbors", "Strangers to Lovers", "Slow Burn", "Hurt/Comfort"]
   },
   {
     "id": 40,
     "author": "AmericannBitch",
-    "url": "https://twitter.com/AmericannBitch/status/2024220660562600400"
+    "url": "https://twitter.com/AmericannBitch/status/2024220660562600400",
+    "tags": ["Exes to Lovers", "Second Chance Romance", "Accidental Confession", "Pining", "Scandal"]
   },
   {
     "id": 41,
     "author": "demisaysno",
-    "url": "https://twitter.com/demisaysno/status/2013607579117609404"
+    "url": "https://twitter.com/demisaysno/status/2013607579117609404",
+    "tags": ["Sports AU", "Forbidden Love", "Rich/Poor Dynamics", "Scandal", "Pining"]
   },
   {
     "id": 42,
     "author": "wickedvdovsky",
-    "url": "https://twitter.com/wickedvdovsky/status/2035164246787379491"
+    "url": "https://twitter.com/wickedvdovsky/status/2035164246787379491",
+    "tags": ["Police AU", "Investigation", "Angst", "Forbidden Love"]
   },
   {
     "id": 43,
     "author": "medvguillenz",
-    "url": "https://twitter.com/medvguillenz/status/2030361882976989465"
+    "url": "https://twitter.com/medvguillenz/status/2030361882976989465",
+    "tags": ["Enemies to Lovers", "Neighbors", "Celebrity AU", "Police AU", "Opposites Attract", "Slow Burn"]
   },
   {
     "id": 44,
     "author": "anasapat_",
-    "url": "https://twitter.com/anasapat_/status/2020905472585257142"
+    "url": "https://twitter.com/anasapat_/status/2020905472585257142",
+    "tags": ["Celebrity AU", "Rich/Poor Dynamics", "Forbidden Love", "Pining"]
   },
   {
     "id": 45,
     "author": "wickedvdovsky",
-    "url": "https://twitter.com/wickedvdovsky/status/2030423046368940108"
+    "url": "https://twitter.com/wickedvdovsky/status/2030423046368940108",
+    "tags": ["Enemies to Lovers", "Celebrity AU", "Forced Proximity", "Workplace AU", "Scandal"]
   },
   {
     "id": 46,
     "author": "gabiisfairy",
-    "url": "https://twitter.com/gabiisfairy/status/2029248058270105760"
+    "url": "https://twitter.com/gabiisfairy/status/2029248058270105760",
+    "tags": ["Medical AU", "Single Parent", "Hurt/Comfort", "Forbidden Love"]
   },
   {
     "id": 47,
     "author": "kikihruiz",
-    "url": "https://twitter.com/kikihruiz/status/2023941523558060298"
+    "url": "https://twitter.com/kikihruiz/status/2023941523558060298",
+    "tags": ["Exes to Lovers", "Second Chance Romance", "Single Parent", "Workplace AU", "Reunion"]
   },
   {
     "id": 48,
     "author": "faiskadaroit",
-    "url": "https://twitter.com/faiskadaroit/status/2045896740260180068"
+    "url": "https://twitter.com/faiskadaroit/status/2045896740260180068",
+    "tags": ["Celebrity AU", "Strangers to Lovers", "Pining", "Hurt/Comfort"]
   },
   {
     "id": 49,
     "author": "wickedvdovsky",
-    "url": "https://twitter.com/wickedvdovsky/status/2028235605528682991"
+    "url": "https://twitter.com/wickedvdovsky/status/2028235605528682991",
+    "tags": ["High School AU", "Enemies to Lovers", "Fake Dating", "Forced Proximity", "Comedy"]
   },
   {
     "id": 50,
     "author": "zyoswf",
-    "url": "https://twitter.com/zyoswf/status/2022520735000928345"
+    "url": "https://twitter.com/zyoswf/status/2022520735000928345",
+    "tags": ["Second Chance Romance", "Investigation", "Reunion", "Angst", "Rich/Poor Dynamics"]
   },
   {
     "id": 51,
     "author": "juqinh",
-    "url": "https://twitter.com/juqinh/status/2017062093581693389"
+    "url": "https://twitter.com/juqinh/status/2017062093581693389",
+    "tags": ["High School AU", "Rich/Poor Dynamics", "Forbidden Love", "Pining", "Childhood Friends"]
   },
   {
     "id": 52,
     "author": "folkshoni",
-    "url": "https://twitter.com/folkshoni/status/2032551709315145737"
+    "url": "https://twitter.com/folkshoni/status/2032551709315145737",
+    "tags": ["Best Friends to Lovers", "Unrequited Love", "Love Triangle", "Pining", "Second Chance Romance"]
   },
   {
     "id": 53,
     "author": "mdvdky",
-    "url": "https://twitter.com/mdvdky/status/2033206219360383197"
+    "url": "https://twitter.com/mdvdky/status/2033206219360383197",
+    "tags": ["Sports AU", "Rivals to Lovers", "Enemies to Lovers", "Slow Burn", "Forced Proximity"]
   },
   {
     "id": 54,
     "author": "alanisholic",
-    "url": "https://twitter.com/alanisholic/status/2024600594791436587"
+    "url": "https://twitter.com/alanisholic/status/2024600594791436587",
+    "tags": ["Musician AU", "Second Chance Romance", "Pining", "Angst"]
   },
   {
     "id": 55,
     "author": "lenarottee",
-    "url": "https://twitter.com/lenarottee/status/2017708863324106928"
+    "url": "https://twitter.com/lenarottee/status/2017708863324106928",
+    "tags": ["Band AU", "Celebrity AU", "Secret Relationship", "Second Chance Romance", "Pining"]
   },
   {
     "id": 56,
@@ -1774,9 +2009,7 @@ const TWEETS = dedupeTweets([
     "id": 63,
     "author": "marydebones",
     "url": "https://twitter.com/marydebones/status/2039680451946659989",
-    "tags": [
-      "Editor's pick"
-    ]
+    "metaTags": ["Editor's pick"]
   },
   {
     "id": 64,
@@ -1832,9 +2065,7 @@ const TWEETS = dedupeTweets([
     "id": 74,
     "author": "wlwcgds",
     "url": "https://twitter.com/wlwcgds/status/2046304302155870596?s=20",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 75,
@@ -1855,17 +2086,13 @@ const TWEETS = dedupeTweets([
     "id": 78,
     "author": "byyguillen",
     "url": "https://twitter.com/byyguillen/status/2045330464685133914?s=20",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 79,
     "author": "misamoart",
     "url": "https://twitter.com/misamoart/status/2045301878150344752?s=20",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 80,
@@ -1918,12 +2145,10 @@ const TWEETS = dedupeTweets([
     "url": "https://x.com/marydebones/status/2043474560498934036"
   },
   {
-    "id": 90,   
+    "id": 90,
     "author": "meow_wildcat",
     "url": "https://x.com/meow_wildcat/status/2035129145609400524",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 91,
@@ -1939,17 +2164,13 @@ const TWEETS = dedupeTweets([
     "id": 93,
     "author": "matimedvew",
     "url": "https://x.com/matimedvew/status/2042598737143300180",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 94,
     "author": "lobotions",
     "url": "https://x.com/lobotions/status/2043443398527320464",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 95,
@@ -2010,9 +2231,7 @@ const TWEETS = dedupeTweets([
     "id": 106,
     "author": "matimedvew",
     "url": "https://x.com/matimedvew/status/2044614814916325692",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 107,
@@ -2023,9 +2242,7 @@ const TWEETS = dedupeTweets([
     "id": 108,
     "author": "matimedvew",
     "url": "https://x.com/matimedvew/status/2041893205621215309",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 109,
@@ -2061,9 +2278,7 @@ const TWEETS = dedupeTweets([
     "id": 115,
     "author": "faiskadaroit",
     "url": "https://x.com/faiskadaroit/status/2029353315868258534",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
   {
     "id": 116,
@@ -2114,30 +2329,24 @@ const TWEETS = dedupeTweets([
     "id": 125,
     "author": "honeyzveloso",
     "url": "https://x.com/honeyzveloso/status/2017287885230137766",
-    "tags": [
-      "mini AU"
-    ]
+    "metaTags": ["mini AU"]
   },
-  { 
-    "id": 126, 
-    "author": "purpleskydrop", 
+  {
+    "id": 126,
+    "author": "purpleskydrop",
     "url": "https://x.com/purpleskydrop/status/2028822819702702463",
-    "tags": [
-      "mini AU"
-    ] 
+    "metaTags": ["mini AU"]
   },
   { 
     "id": 127, 
     "author": "guillendovski", 
     "url": "https://x.com/guillendovski/status/2031442383783522330" 
   },
-  { 
-    "id": 128, 
-    "author": "mandsromania", 
+  {
+    "id": 128,
+    "author": "mandsromania",
     "url": "https://x.com/mandsromania/status/2035737078546206930",
-    "tags": [
-      "mini AU"
-    ] 
+    "metaTags": ["mini AU"]
   },
   { 
     "id": 129, 
@@ -2213,9 +2422,7 @@ const TWEETS = dedupeTweets([
     "id": 143,
     "author": "mdvdky",
     "url": "https://x.com/mdvdky/status/2035908149211799961",
-    "tags": [
-      "not started (yet)"
-    ]
+    "metaTags": ["not started (yet)"]
   }
 ]);
 
@@ -2231,18 +2438,68 @@ function profileUrl(handle) {
   return "https://twitter.com/" + encodeURIComponent(handle);
 }
 
+/** Names used as meta-only badges (not filterable as tropes). */
+const META_TAG_NAMES = new Set(["Editor's pick", "mini AU", "not started (yet)"]);
+
+/** Reads metaTags, plus any legacy meta names that still live in `tags`. */
+function metaTagsOf(tw) {
+  const out = [];
+  const seen = new Set();
+  const push = (t) => {
+    if (!t || seen.has(t)) return;
+    seen.add(t);
+    out.push(t);
+  };
+  if (Array.isArray(tw.metaTags)) tw.metaTags.forEach(push);
+  if (Array.isArray(tw.tags)) tw.tags.forEach((t) => { if (META_TAG_NAMES.has(t)) push(t); });
+  return out;
+}
+
+/** Reads `tags` minus any meta-tag names, lightly trimmed. */
+function tropeTagsOf(tw) {
+  if (!Array.isArray(tw.tags)) return [];
+  const out = [];
+  const seen = new Set();
+  for (const raw of tw.tags) {
+    const t = String(raw || "").trim();
+    if (!t || META_TAG_NAMES.has(t) || seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+}
+
+function escAttr(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function escText(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
 function badgesHtml(tw) {
-  const tags = tw.tags || [];
-  return tags.map((t) => {
+  return metaTagsOf(tw).map((t) => {
     if (t === "mini AU") return `<span class="tweet-badge tweet-badge--mini">${tr("badgeMini")}</span>`;
     if (t === "Editor's pick") return `<span class="tweet-badge tweet-badge--pick">${tr("badgeEditors")}</span>`;
     if (t === "not started (yet)") return `<span class="tweet-badge tweet-badge--not-started">${tr("badgeNotStarted")}</span>`;
-    return `<span class="tweet-badge">${t}</span>`;
+    return `<span class="tweet-badge">${escText(t)}</span>`;
   }).join("");
+}
+
+function tropeTagsHtml(tw) {
+  const tags = tropeTagsOf(tw);
+  if (tags.length === 0) return "";
+  const inner = tags.map((t) => {
+    const on = activeTags.has(t);
+    return `<button type="button" class="tweet-trope-tag${on ? " is-on" : ""}" data-trope-tag="${escAttr(t)}" aria-pressed="${on ? "true" : "false"}">${escText(t)}</button>`;
+  }).join("");
+  return `<div class="tweet-card-tags" aria-label="${escAttr(tr("cardTagsAria"))}">${inner}</div>`;
 }
 
 /** Author filter: empty set = show all; otherwise tweets whose `author` is in the set (OR). */
 const activeAuthors = new Set();
+
+/** Trope-tag filter: empty set = show all; otherwise tweets that have ANY of these tags (OR). */
+const activeTags = new Set();
 
 const WANT_IDS_KEY = "loquinha-want-ids";
 const READ_IDS_KEY = "loquinha-read-ids";
@@ -2300,14 +2557,29 @@ function uniqueAuthorsSorted() {
   ].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
 }
 
+function uniqueTropeTagsSorted() {
+  const set = new Set();
+  for (const tw of filledTweets()) {
+    for (const t of tropeTagsOf(tw)) set.add(t);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+}
+
 function isEditorsPick(tw) {
-  return tw.tags && tw.tags.includes("Editor's pick");
+  return metaTagsOf(tw).includes("Editor's pick");
+}
+
+function tweetMatchesActiveTags(tw) {
+  if (activeTags.size === 0) return true;
+  const tags = tropeTagsOf(tw);
+  for (const t of tags) if (activeTags.has(t)) return true;
+  return false;
 }
 
 function baseFilteredSortedTweets() {
   const src = filledTweets();
-  const list =
-    activeAuthors.size === 0 ? src.slice() : src.filter((t) => activeAuthors.has(t.author));
+  let list = activeAuthors.size === 0 ? src.slice() : src.filter((t) => activeAuthors.has(t.author));
+  if (activeTags.size > 0) list = list.filter(tweetMatchesActiveTags);
   list.sort((a, b) => {
     const pa = isEditorsPick(a) ? 1 : 0;
     const pb = isEditorsPick(b) ? 1 : 0;
@@ -2370,8 +2642,10 @@ function tweetMatchesSearch(tw) {
   const url = String(tw.url || "").toLowerCase();
   if (url.includes(q)) return true;
   if (/^\d+$/.test(q) && url.includes("/status/" + q)) return true;
-  const tags = tw.tags || [];
-  for (const tag of tags) {
+  for (const tag of metaTagsOf(tw)) {
+    if (String(tag).toLowerCase().includes(q)) return true;
+  }
+  for (const tag of tropeTagsOf(tw)) {
     if (String(tag).toLowerCase().includes(q)) return true;
   }
   return false;
@@ -2505,8 +2779,11 @@ function showReadingLocalToastOnce() {
 
 function resetAllListFilters() {
   activeAuthors.clear();
-  const wrap = document.getElementById("author-filter-tags");
-  if (wrap) wrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
+  const aWrap = document.getElementById("author-filter-tags");
+  if (aWrap) aWrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
+  activeTags.clear();
+  const tWrap = document.getElementById("tag-filter-tags");
+  if (tWrap) tWrap.querySelectorAll(".tag.active").forEach((x) => x.classList.remove("active"));
   readingFilter = "all";
   editorsPickOnly = false;
   searchNorm = "";
@@ -2520,6 +2797,7 @@ function resetAllListFilters() {
   clearShuffleRest();
   syncReadingFilterPills();
   syncAuthorFilterCount();
+  syncTagFilterCount();
   render();
 }
 
@@ -2616,6 +2894,121 @@ function initAuthorFilter() {
   });
 
   syncAuthorFilterCount();
+}
+
+function syncTagFilterCount() {
+  const el = document.getElementById("tag-filter-count");
+  const openLabel = document.getElementById("tag-filter-open-label");
+  if (!el) return;
+  const n = activeTags.size;
+  if (n === 0) {
+    el.textContent = tr("filterAllTags");
+    el.classList.remove("is-on");
+    if (openLabel) openLabel.textContent = tr("filterTags");
+  } else {
+    el.textContent = n === 1 ? tr("filterOneTag") : tr("filterNTags").replace("{n}", String(n));
+    el.classList.add("is-on");
+    if (openLabel) openLabel.textContent = `${tr("filterTags")} (${n})`;
+  }
+}
+
+/** Sync .is-on state for trope pills inside currently rendered cards. */
+function syncCardTropePills() {
+  const grid = document.getElementById("tweets-grid");
+  if (!grid) return;
+  grid.querySelectorAll(".tweet-trope-tag").forEach((btn) => {
+    const t = btn.getAttribute("data-trope-tag") || "";
+    const on = activeTags.has(t);
+    btn.classList.toggle("is-on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+/** Sync .active state for tag buttons inside the tag drawer. */
+function syncTagDrawerActive() {
+  const wrap = document.getElementById("tag-filter-tags");
+  if (!wrap) return;
+  wrap.querySelectorAll(".tag").forEach((btn) => {
+    const t = btn.getAttribute("data-trope-tag") || "";
+    btn.classList.toggle("active", activeTags.has(t));
+  });
+}
+
+function initTagFilter() {
+  const wrap = document.getElementById("tag-filter-tags");
+  if (!wrap) return;
+  wrap.innerHTML = uniqueTropeTagsSorted()
+    .map(
+      (t) =>
+        `<button type="button" class="tag" data-trope-tag="${escAttr(t)}">${escText(t)}</button>`
+    )
+    .join("");
+
+  wrap.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tag");
+    if (!btn || !wrap.contains(btn)) return;
+    const t = btn.getAttribute("data-trope-tag") || "";
+    if (!t) return;
+    if (activeTags.has(t)) activeTags.delete(t);
+    else activeTags.add(t);
+    btn.classList.toggle("active", activeTags.has(t));
+    syncTagFilterCount();
+    syncCardTropePills();
+    clearShuffleRest();
+    currentPage = 1;
+    render();
+  });
+
+  document.getElementById("tag-filter-clear")?.addEventListener("click", () => {
+    activeTags.clear();
+    wrap.querySelectorAll(".tag.active").forEach((b) => b.classList.remove("active"));
+    syncTagFilterCount();
+    syncCardTropePills();
+    clearShuffleRest();
+    currentPage = 1;
+    render();
+  });
+
+  const backdrop = document.getElementById("tag-drawer-backdrop");
+  const panel = document.getElementById("tag-drawer");
+  const openBtn = document.getElementById("tag-drawer-open");
+  const closeBtn = document.getElementById("tag-drawer-close");
+  if (!backdrop || !panel || !openBtn || !closeBtn) return;
+
+  function openTagDrawer() {
+    document.body.classList.add("tag-drawer-open");
+    backdrop.classList.add("is-visible");
+    backdrop.setAttribute("aria-hidden", "false");
+    panel.classList.add("is-open");
+    panel.setAttribute("aria-hidden", "false");
+    openBtn.setAttribute("aria-expanded", "true");
+    requestAnimationFrame(() => closeBtn.focus());
+  }
+
+  function closeTagDrawer() {
+    document.body.classList.remove("tag-drawer-open");
+    backdrop.classList.remove("is-visible");
+    backdrop.setAttribute("aria-hidden", "true");
+    panel.classList.remove("is-open");
+    panel.setAttribute("aria-hidden", "true");
+    openBtn.setAttribute("aria-expanded", "false");
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener("click", () => {
+    if (document.body.classList.contains("tag-drawer-open")) closeTagDrawer();
+    else openTagDrawer();
+  });
+  closeBtn.addEventListener("click", closeTagDrawer);
+  backdrop.addEventListener("click", closeTagDrawer);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.body.classList.contains("tag-drawer-open")) {
+      closeTagDrawer();
+    }
+  });
+
+  syncTagFilterCount();
 }
 
 /** Lazy X embeds: disconnect before each full re-render. */
@@ -2864,6 +3257,7 @@ function render() {
         <a class="tweet-author" href="${profileUrl(tw.author)}" target="_blank" rel="noopener noreferrer">@${tw.author}</a>
         <span class="tweet-badges">${badgesHtml(tw)}</span>
       </div>
+      ${tropeTagsHtml(tw)}
       <div class="tweet-card-actions">
         <span class="action-btn-wrap">
           <button type="button" class="action-want${wantOn ? " is-on" : ""}" aria-pressed="${wantOn ? "true" : "false"}" aria-label="${tr("actionWantAria")}">${wantIcon}</button>
@@ -2916,6 +3310,19 @@ function initReadingListUi() {
   });
 
   grid?.addEventListener("click", (e) => {
+    const tropeBtn = e.target.closest(".tweet-trope-tag");
+    if (tropeBtn && grid.contains(tropeBtn)) {
+      const t = tropeBtn.getAttribute("data-trope-tag") || "";
+      if (!t) return;
+      if (activeTags.has(t)) activeTags.delete(t);
+      else activeTags.add(t);
+      syncTagFilterCount();
+      syncTagDrawerActive();
+      clearShuffleRest();
+      currentPage = 1;
+      render();
+      return;
+    }
     const wantBtn = e.target.closest(".action-want");
     const readBtn = e.target.closest(".action-read");
     if (!wantBtn && !readBtn) return;
@@ -2953,6 +3360,7 @@ document.getElementById("lang-en").addEventListener("click", () => setLang("en")
 applyStaticI18n();
 syncLangButtons();
 initAuthorFilter();
+initTagFilter();
 initReadingListUi();
 initShuffleControls();
 initPagination();
