@@ -860,6 +860,14 @@
       letter-spacing: 0;
       font-size: 0.72rem;
     }
+    .tweet-badge--not-started {
+      background: #f4f0f2;
+      color: #5a4a52;
+      border: 1px solid #ddd5da;
+      text-transform: none;
+      letter-spacing: 0.02em;
+      font-size: 0.68rem;
+    }
 
     .tweet-embed-wrap {
       padding: 4px 10px 10px;
@@ -1154,7 +1162,7 @@
 const LANG_STORAGE = "loquinha-lang";
 
 /** Bump this ISO date (YYYY-MM-DD) when you change the tweet list. */
-const ARCHIVE_LAST_UPDATED = "2026-04-23";
+const ARCHIVE_LAST_UPDATED = "2026-04-26";
 
 const MESSAGES = {
   pt: {
@@ -1231,6 +1239,7 @@ const MESSAGES = {
     footerText: "feito com 🧡🩷 para as lésbicas por slappepolsen.",
     badgeMini: "Mini AU",
     badgeEditors: "🏆 Escolha da curadoria",
+    badgeNotStarted: "Ainda não começou",
     notifyTweetBody:
       "Oi @slappepolsen, tô no arquivo de AU's Loquinha e queria pedir pra você incluir o seguinte AU na página: <insira o AU ou o link do tweet>",
     backToTopAria: "Voltar ao topo",
@@ -1309,6 +1318,7 @@ const MESSAGES = {
     footerText: "made with 🧡🩷 for the lesbians by slappepolsen.",
     badgeMini: "Mini AU",
     badgeEditors: "🏆 Editor's pick",
+    badgeNotStarted: "Not started (yet)",
     notifyTweetBody:
       "Hey @slappepolsen, I've been browsing the Loquinha AU's archive and I was wondering if you could add the following AU to the page: <insert AU or tweet link>",
     backToTopAria: "Back to top",
@@ -1411,7 +1421,7 @@ function initBackToTop() {
 }
 
 /* ════════════════════════════════
-   Tweet data: id, author (X handle), url (canonical twitter.com/…/status/id, no ?s=…); optional tags: "mini AU", "Editor's pick".
+   Tweet data: id, author (X handle), url (canonical twitter.com/…/status/id, no ?s=…); optional tags: "mini AU", "Editor's pick", "not started (yet)".
    Duplicates (same id or same /status/… id in url) are dropped; first occurrence wins.
    Rows with both author and url empty are placeholders (reserved id); they are ignored for counts, filters, and the grid.
    ════════════════════════════════ */
@@ -2201,8 +2211,11 @@ const TWEETS = dedupeTweets([
   },
   {
     "id": 143,
-    "author": "",
-    "url": ""
+    "author": "mdvdky",
+    "url": "https://x.com/mdvdky/status/2035908149211799961",
+    "tags": [
+      "not started (yet)"
+    ]
   }
 ]);
 
@@ -2223,6 +2236,7 @@ function badgesHtml(tw) {
   return tags.map((t) => {
     if (t === "mini AU") return `<span class="tweet-badge tweet-badge--mini">${tr("badgeMini")}</span>`;
     if (t === "Editor's pick") return `<span class="tweet-badge tweet-badge--pick">${tr("badgeEditors")}</span>`;
+    if (t === "not started (yet)") return `<span class="tweet-badge tweet-badge--not-started">${tr("badgeNotStarted")}</span>`;
     return `<span class="tweet-badge">${t}</span>`;
   }).join("");
 }
