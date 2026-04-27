@@ -1037,6 +1037,51 @@
       flex: 1;
     }
 
+    .tweet-embed-fallback {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      padding: 18px 16px;
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+    }
+    .tweet-embed-wrap.tweet-embed-failed .tweet-embed-fallback {
+      display: flex;
+    }
+    .tweet-embed-wrap.tweet-embed-failed blockquote.twitter-tweet {
+      display: none;
+    }
+    .tweet-embed-fallback-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .tweet-embed-fallback-hint {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .tweet-embed-fallback-link {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--accent);
+      color: var(--c6);
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: background 0.18s, color 0.18s;
+    }
+    .tweet-embed-fallback-link:hover,
+    .tweet-embed-fallback-link:focus-visible {
+      background: var(--accent);
+      color: #fff;
+    }
+
     /* ── Empty state ── */
     .empty-state {
       grid-column: 1 / -1;
@@ -1415,6 +1460,9 @@ const MESSAGES = {
     actionReadAria: "Marcar como lido",
     actionWantTooltip: "Quero ler",
     actionReadTooltip: "Lido",
+    embedFallbackTitle: "Não foi possível carregar o tweet",
+    embedFallbackHint: "Pode estar bloqueado pelo navegador (proteção contra rastreadores) ou indisponível.",
+    embedFallbackOpen: "Abrir no X",
     paginationAria: "Paginação",
     paginationPrev: "Página anterior",
     paginationNext: "Próxima página",
@@ -1503,6 +1551,9 @@ const MESSAGES = {
     actionReadAria: "Mark as read",
     actionWantTooltip: "Want to read",
     actionReadTooltip: "Have read",
+    embedFallbackTitle: "Couldn't load this tweet",
+    embedFallbackHint: "Your browser may be blocking it (tracking protection) or it may be unavailable.",
+    embedFallbackOpen: "Open on X",
     paginationAria: "Pagination",
     paginationPrev: "Previous page",
     paginationNext: "Next page",
@@ -3139,7 +3190,9 @@ function disconnectEmbedObservers() {
   }
 }
 
-function withTwttr(cb) {
+/** Polls for the async-loaded twttr global. Caps retries so a blocked
+ *  widgets.js (Firefox strict mode, content blockers) doesn't loop forever. */
+function withTwttr(cb, attempt = 0) {
   const tw = window.twttr;
   if (tw && tw.widgets && typeof tw.widgets.load === "function") {
     cb(tw);
@@ -3149,7 +3202,17 @@ function withTwttr(cb) {
     tw.ready(() => cb(window.twttr));
     return;
   }
-  setTimeout(() => withTwttr(cb), 40);
+  if (attempt >= 75) { // ~3s of polling, then give up
+    cb(null);
+    return;
+  }
+  setTimeout(() => withTwttr(cb, attempt + 1), 40);
+}
+
+function showEmbedFallback(wrap) {
+  if (!wrap) return;
+  wrap.classList.remove("tweet-embed-pending");
+  wrap.classList.add("tweet-embed-failed");
 }
 
 function loadEmbedForArticle(article) {
@@ -3158,23 +3221,38 @@ function loadEmbedForArticle(article) {
   if (!wrap) return;
   article.dataset.embedLoaded = "1";
   wrap.classList.add("tweet-embed-pending");
+  wrap.classList.remove("tweet-embed-failed");
 
-  /* Drop the shimmering placeholder only once Twitter has actually inserted
-   * the iframe. Watching the DOM is more reliable than `widgets.load()`'s
-   * promise across versions. A 6s safety net stops the shimmer if Twitter
-   * never responds (deleted tweet, blocked, etc). */
-  const finalize = () => wrap.classList.remove("tweet-embed-pending");
+  /* Watch for Twitter's iframe; if 6s pass without one, surface an
+   * "Open on X" fallback. Keep the observer alive so a late-loading
+   * iframe still wins and replaces the fallback. */
+  const onSuccess = () => {
+    wrap.classList.remove("tweet-embed-pending");
+    wrap.classList.remove("tweet-embed-failed");
+  };
   const mo = new MutationObserver(() => {
     if (wrap.querySelector("iframe")) {
       mo.disconnect();
-      finalize();
+      onSuccess();
     }
   });
   mo.observe(wrap, { childList: true, subtree: true });
-  setTimeout(() => { mo.disconnect(); finalize(); }, 6000);
+
+  setTimeout(() => {
+    if (!wrap.querySelector("iframe")) showEmbedFallback(wrap);
+  }, 6000);
+
+  /* Disconnect after a hard upper bound to avoid leaking observers. */
+  setTimeout(() => mo.disconnect(), 30000);
 
   withTwttr((t) => {
-    try { t.widgets.load(wrap); } catch (_) { /* ignore */ }
+    if (!t) {
+      if (!wrap.querySelector("iframe")) showEmbedFallback(wrap);
+      return;
+    }
+    try { t.widgets.load(wrap); } catch (_) {
+      if (!wrap.querySelector("iframe")) showEmbedFallback(wrap);
+    }
   });
 }
 
@@ -3239,6 +3317,11 @@ function buildTweetCardElement(tw, wantTip, readTip) {
         <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
           <a href="${tw.url}"></a>
         </blockquote>
+        <div class="tweet-embed-fallback" role="note">
+          <span class="tweet-embed-fallback-title">${escAttr(tr("embedFallbackTitle"))}</span>
+          <span class="tweet-embed-fallback-hint">${escAttr(tr("embedFallbackHint"))}</span>
+          <a class="tweet-embed-fallback-link" href="${tw.url}" target="_blank" rel="noopener noreferrer">${escAttr(tr("embedFallbackOpen"))} →</a>
+        </div>
       </div>
     </article>`;
   const tpl = document.createElement("template");
