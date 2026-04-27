@@ -1532,6 +1532,9 @@ function setLang(next) {
   syncAuthorFilterCount();
   syncTagFilterCount();
   syncReadingFilterPills();
+  // Card text (tooltips, badges, ARIA labels) is i18n-baked when the card is
+  // built, so drop cached cards to force a rebuild in the new language.
+  if (typeof clearTweetCardCache === "function") clearTweetCardCache();
   render();
 }
 
@@ -3104,6 +3107,15 @@ const embedIntersectionObservers = [];
 /** Eager loads first N cards; rest use IntersectionObserver (PAGE_SIZE stays 12). */
 const INITIAL_EMBED_BATCH = 6;
 
+/**
+ * Card DOM cache so re-renders (typing in search, paging, toggling filters)
+ * don't tear down the X iframe — moving an iframe between parents reloads it,
+ * which is the dominant cost. Cards stay attached to the grid; we just toggle
+ * `hidden` and CSS `order` to reflect the current page.
+ */
+const tweetCardCache = new Map(); // id -> <article> (insertion order = LRU)
+const TWEET_CARD_CACHE_MAX = 60;
+
 function disconnectEmbedObservers() {
   while (embedIntersectionObservers.length) {
     embedIntersectionObservers.pop().disconnect();
@@ -3138,18 +3150,19 @@ function loadEmbedForArticle(article) {
   });
 }
 
-function setupLazyEmbeds() {
-  const grid = document.getElementById("tweets-grid");
-  if (!grid) return;
-  const articles = [...grid.querySelectorAll("article.tweet-card")];
-  if (articles.length === 0) return;
-  articles.forEach((a) => {
-    a.dataset.embedLoaded = "0";
+/** Acts only on cards in `pageSlice`; preserves iframes for already-loaded ones. */
+function setupLazyEmbedsForPageArticles(pageSlice) {
+  if (!pageSlice || pageSlice.length === 0) return;
+  const articles = pageSlice.map((tw) => tweetCardCache.get(tw.id)).filter(Boolean);
+  const unloaded = articles.filter((a) => a.dataset.embedLoaded !== "1");
+  if (unloaded.length === 0) return;
+  unloaded.forEach((a) => {
     const w = a.querySelector(".tweet-embed-wrap");
     if (w) w.classList.add("tweet-embed-pending");
+    a.dataset.embedLoaded = "0";
   });
-  const first = articles.slice(0, INITIAL_EMBED_BATCH);
-  const rest = articles.slice(INITIAL_EMBED_BATCH);
+  const first = unloaded.slice(0, INITIAL_EMBED_BATCH);
+  const rest = unloaded.slice(INITIAL_EMBED_BATCH);
   first.forEach((a) => loadEmbedForArticle(a));
   if (rest.length === 0) return;
   const io = new IntersectionObserver(
@@ -3165,6 +3178,75 @@ function setupLazyEmbeds() {
   );
   rest.forEach((a) => io.observe(a));
   embedIntersectionObservers.push(io);
+}
+
+function ensureGridEmptyStateEl() {
+  const grid = document.getElementById("tweets-grid");
+  if (!grid) return null;
+  let el = document.getElementById("tweets-grid-empty");
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "tweets-grid-empty";
+    el.className = "empty-state";
+    el.style.order = "0";
+    el.hidden = true;
+    grid.appendChild(el);
+  }
+  return el;
+}
+
+function hideAllCachedCards() {
+  for (const art of tweetCardCache.values()) art.hidden = true;
+}
+
+function clearTweetCardCache() {
+  for (const art of tweetCardCache.values()) art.remove();
+  tweetCardCache.clear();
+}
+
+function buildTweetCardElement(tw, wantTip, readTip) {
+  const pick = isEditorsPick(tw);
+  const cls = pick ? "tweet-card fade-in tweet-card--pick" : "tweet-card fade-in";
+  const wantOn = wantTweetIds.has(tw.id);
+  const readOn = readTweetIds.has(tw.id);
+  const wantIcon = wantOn ? "♥" : "♡";
+  const readIcon = readOn ? "✓" : "□";
+  const html = `
+    <article class="${cls}" data-tweet-id="${tw.id}">
+      <div class="tweet-card-meta">
+        <a class="tweet-author" href="${profileUrl(tw.author)}" target="_blank" rel="noopener noreferrer">@${tw.author}</a>
+        <span class="tweet-badges">${badgesHtml(tw)}</span>
+      </div>
+      ${tropeTagsHtml(tw)}
+      <div class="tweet-card-actions">
+        <span class="action-btn-wrap">
+          <button type="button" class="action-want${wantOn ? " is-on" : ""}" aria-pressed="${wantOn ? "true" : "false"}" aria-label="${tr("actionWantAria")}">${wantIcon}</button>
+          <span class="action-tooltip" aria-hidden="true">${wantTip}</span>
+        </span>
+        <span class="action-btn-wrap">
+          <button type="button" class="action-read${readOn ? " is-on" : ""}" aria-pressed="${readOn ? "true" : "false"}" aria-label="${tr("actionReadAria")}">${readIcon}</button>
+          <span class="action-tooltip" aria-hidden="true">${readTip}</span>
+        </span>
+      </div>
+      <div class="tweet-embed-wrap tweet-embed-pending">
+        <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
+          <a href="${tw.url}"></a>
+        </blockquote>
+      </div>
+    </article>`;
+  const tpl = document.createElement("template");
+  tpl.innerHTML = html.trim();
+  return tpl.content.firstElementChild;
+}
+
+function refreshCachedTweetCard(article) {
+  patchWantReadButtons(article);
+  article.querySelectorAll(".tweet-trope-tag").forEach((btn) => {
+    const t = btn.getAttribute("data-trope-tag") || "";
+    const on = activeTags.has(t);
+    btn.classList.toggle("is-on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
 }
 
 function renderPagination(totalPages) {
@@ -3288,17 +3370,21 @@ function render() {
 
   disconnectEmbedObservers();
 
+  const empty = ensureGridEmptyStateEl();
+
   if (filledTweets().length === 0) {
     if (pagEl) {
       pagEl.hidden = true;
       pagEl.innerHTML = "";
     }
-    grid.innerHTML = `
-      <div class="empty-state">
+    hideAllCachedCards();
+    if (empty) {
+      empty.hidden = false;
+      empty.innerHTML = `
         <span class="empty-icon">🏳️‍🌈</span>
         <h3>${tr("emptyNoTweetsTitle")}</h3>
-        <p><a href="#notify-archive" style="color:var(--accent)">${tr("emptyNoTweetsLink")}</a></p>
-      </div>`;
+        <p><a href="#notify-archive" style="color:var(--accent)">${tr("emptyNoTweetsLink")}</a></p>`;
+    }
     updateShuffleUi();
     return;
   }
@@ -3308,15 +3394,22 @@ function render() {
       pagEl.hidden = true;
       pagEl.innerHTML = "";
     }
-    grid.innerHTML = `
-      <div class="empty-state">
+    hideAllCachedCards();
+    if (empty) {
+      empty.hidden = false;
+      empty.innerHTML = `
         <span class="empty-icon">🏳️‍🌈</span>
         <h3>${tr(searchNorm ? "emptySearchTitle" : "emptyVisibleTitle")}</h3>
-        <p><button type="button" class="filter-reset" style="margin:0 auto;display:block" id="empty-clear-all-filters">${tr("emptyClearAllFilters")}</button></p>
-      </div>`;
-    document.getElementById("empty-clear-all-filters")?.addEventListener("click", resetAllListFilters);
+        <p><button type="button" class="filter-reset" style="margin:0 auto;display:block" id="empty-clear-all-filters">${tr("emptyClearAllFilters")}</button></p>`;
+      document.getElementById("empty-clear-all-filters")?.addEventListener("click", resetAllListFilters);
+    }
     updateShuffleUi();
     return;
+  }
+
+  if (empty) {
+    empty.hidden = true;
+    empty.innerHTML = "";
   }
 
   const totalPages = Math.max(1, Math.ceil(nVis / PAGE_SIZE));
@@ -3332,52 +3425,50 @@ function render() {
   const wantTip = escTip(tr("actionWantTooltip"));
   const readTip = escTip(tr("actionReadTooltip"));
 
-  grid.innerHTML = pageSlice.map((tw) => {
-    const pick = isEditorsPick(tw);
-    const cls = pick ? "tweet-card fade-in tweet-card--pick" : "tweet-card fade-in";
-    const wantOn = wantTweetIds.has(tw.id);
-    const readOn = readTweetIds.has(tw.id);
-    const wantIcon = wantOn ? "♥" : "♡";
-    const readIcon = readOn ? "✓" : "□";
-    return `
-    <article class="${cls}" data-tweet-id="${tw.id}">
-      <div class="tweet-card-meta">
-        <a class="tweet-author" href="${profileUrl(tw.author)}" target="_blank" rel="noopener noreferrer">@${tw.author}</a>
-        <span class="tweet-badges">${badgesHtml(tw)}</span>
-      </div>
-      ${tropeTagsHtml(tw)}
-      <div class="tweet-card-actions">
-        <span class="action-btn-wrap">
-          <button type="button" class="action-want${wantOn ? " is-on" : ""}" aria-pressed="${wantOn ? "true" : "false"}" aria-label="${tr("actionWantAria")}">${wantIcon}</button>
-          <span class="action-tooltip" aria-hidden="true">${wantTip}</span>
-        </span>
-        <span class="action-btn-wrap">
-          <button type="button" class="action-read${readOn ? " is-on" : ""}" aria-pressed="${readOn ? "true" : "false"}" aria-label="${tr("actionReadAria")}">${readIcon}</button>
-          <span class="action-tooltip" aria-hidden="true">${readTip}</span>
-        </span>
-      </div>
-      <div class="tweet-embed-wrap tweet-embed-pending">
-        <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
-          <a href="${tw.url}"></a>
-        </blockquote>
-      </div>
-    </article>`;
-  }).join("");
+  const pageIdSet = new Set(pageSlice.map((t) => t.id));
+  for (const [id, art] of tweetCardCache) {
+    if (!pageIdSet.has(id)) art.hidden = true;
+  }
+
+  const newArticles = [];
+  pageSlice.forEach((tw, i) => {
+    let art = tweetCardCache.get(tw.id);
+    if (art) {
+      tweetCardCache.delete(tw.id); // re-insert at end → most-recently-used
+      refreshCachedTweetCard(art);
+      art.hidden = false;
+    } else {
+      art = buildTweetCardElement(tw, wantTip, readTip);
+      grid.appendChild(art);
+      newArticles.push(art);
+    }
+    art.style.order = String(i + 1);
+    tweetCardCache.set(tw.id, art);
+  });
+
+  while (tweetCardCache.size > TWEET_CARD_CACHE_MAX) {
+    const oldestId = tweetCardCache.keys().next().value;
+    const oldArt = tweetCardCache.get(oldestId);
+    tweetCardCache.delete(oldestId);
+    if (oldArt && !pageIdSet.has(oldestId)) oldArt.remove();
+  }
 
   renderPagination(totalPages);
 
-  setupLazyEmbeds();
+  setupLazyEmbedsForPageArticles(pageSlice);
 
-  /* Staggered scroll-in */
-  const obs = new IntersectionObserver((entries) => {
-    entries.forEach((e, i) => {
-      if (e.isIntersecting) {
-        setTimeout(() => e.target.classList.add("visible"), i * 90);
-        obs.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.08 });
-  grid.querySelectorAll(".fade-in").forEach(c => obs.observe(c));
+  /* Stagger fade-in only for newly-built cards (cached cards already faded in). */
+  if (newArticles.length) {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add("visible"), i * 90);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    newArticles.forEach((c) => obs.observe(c));
+  }
   updateShuffleUi();
 }
 
