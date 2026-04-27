@@ -717,9 +717,25 @@
     }
 
     .tweet-embed-pending {
-      min-height: 120px;
+      position: relative;
+      min-height: 220px;
       background: linear-gradient(180deg, #faf8f6 0%, #f5f0ec 100%);
       border-radius: 8px;
+      overflow: hidden;
+    }
+    .tweet-embed-pending::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+      transform: translateX(-100%);
+      animation: tweet-embed-shimmer 1.4s ease-in-out infinite;
+    }
+    @keyframes tweet-embed-shimmer {
+      to { transform: translateX(100%); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .tweet-embed-pending::after { animation: none; }
     }
 
     /* ── Tweet Grid ── */
@@ -1333,7 +1349,7 @@
 const LANG_STORAGE = "loquinha-lang";
 
 /** Bump this ISO date (YYYY-MM-DD) when you change the tweet list. */
-const ARCHIVE_LAST_UPDATED = "2026-04-27";
+const ARCHIVE_LAST_UPDATED = "2026-04-26";
 
 const MESSAGES = {
   pt: {
@@ -3105,10 +3121,8 @@ function initTagFilter() {
   syncTagFilterCount();
 }
 
-/** Lazy X embeds: disconnect before each full re-render. */
+/** Kept for compatibility with `disconnectEmbedObservers()`; nothing pushes here anymore. */
 const embedIntersectionObservers = [];
-/** Eager loads first N cards; rest use IntersectionObserver (PAGE_SIZE stays 12). */
-const INITIAL_EMBED_BATCH = 6;
 
 /**
  * Card DOM cache so re-renders (typing in search, paging, toggling filters)
@@ -3143,44 +3157,34 @@ function loadEmbedForArticle(article) {
   const wrap = article.querySelector(".tweet-embed-wrap");
   if (!wrap) return;
   article.dataset.embedLoaded = "1";
-  wrap.classList.remove("tweet-embed-pending");
-  withTwttr((t) => {
-    try {
-      t.widgets.load(wrap);
-    } catch (err) {
-      /* ignore */
+  wrap.classList.add("tweet-embed-pending");
+
+  /* Drop the shimmering placeholder only once Twitter has actually inserted
+   * the iframe. Watching the DOM is more reliable than `widgets.load()`'s
+   * promise across versions. A 6s safety net stops the shimmer if Twitter
+   * never responds (deleted tweet, blocked, etc). */
+  const finalize = () => wrap.classList.remove("tweet-embed-pending");
+  const mo = new MutationObserver(() => {
+    if (wrap.querySelector("iframe")) {
+      mo.disconnect();
+      finalize();
     }
+  });
+  mo.observe(wrap, { childList: true, subtree: true });
+  setTimeout(() => { mo.disconnect(); finalize(); }, 6000);
+
+  withTwttr((t) => {
+    try { t.widgets.load(wrap); } catch (_) { /* ignore */ }
   });
 }
 
-/** Acts only on cards in `pageSlice`; preserves iframes for already-loaded ones. */
+/** Eagerly loads every card on the current page — no IntersectionObserver. */
 function setupLazyEmbedsForPageArticles(pageSlice) {
   if (!pageSlice || pageSlice.length === 0) return;
-  const articles = pageSlice.map((tw) => tweetCardCache.get(tw.id)).filter(Boolean);
-  const unloaded = articles.filter((a) => a.dataset.embedLoaded !== "1");
-  if (unloaded.length === 0) return;
-  unloaded.forEach((a) => {
-    const w = a.querySelector(".tweet-embed-wrap");
-    if (w) w.classList.add("tweet-embed-pending");
-    a.dataset.embedLoaded = "0";
+  pageSlice.forEach((tw) => {
+    const article = tweetCardCache.get(tw.id);
+    if (article) loadEmbedForArticle(article);
   });
-  const first = unloaded.slice(0, INITIAL_EMBED_BATCH);
-  const rest = unloaded.slice(INITIAL_EMBED_BATCH);
-  first.forEach((a) => loadEmbedForArticle(a));
-  if (rest.length === 0) return;
-  const io = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((ent) => {
-        if (ent.isIntersecting) {
-          loadEmbedForArticle(ent.target);
-          io.unobserve(ent.target);
-        }
-      });
-    },
-    { root: null, rootMargin: "220px 0px", threshold: 0.01 }
-  );
-  rest.forEach((a) => io.observe(a));
-  embedIntersectionObservers.push(io);
 }
 
 function ensureGridEmptyStateEl() {
@@ -3460,18 +3464,8 @@ function render() {
 
   setupLazyEmbedsForPageArticles(pageSlice);
 
-  /* Stagger fade-in only for newly-built cards (cached cards already faded in). */
-  if (newArticles.length) {
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach((e, i) => {
-        if (e.isIntersecting) {
-          setTimeout(() => e.target.classList.add("visible"), i * 90);
-          obs.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.08 });
-    newArticles.forEach((c) => obs.observe(c));
-  }
+  /* Reveal new cards immediately — no staggered delay. */
+  newArticles.forEach((c) => c.classList.add("visible"));
   updateShuffleUi();
 }
 
