@@ -275,6 +275,37 @@
       border-radius: 4px;
     }
 
+    /* ── Site poll (Google Form embed) ── */
+    .site-poll {
+      --poll-scale: 0.8;
+      --poll-view-height: 365px;
+      max-width: 640px;
+      margin: 0 auto 28px;
+      padding: 0 24px;
+    }
+    .site-poll-embed {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #fff;
+      height: var(--poll-view-height);
+    }
+    .site-poll-iframe-scale {
+      width: calc(100% / var(--poll-scale));
+      height: calc(var(--poll-view-height) / var(--poll-scale));
+      transform: scale(var(--poll-scale));
+      transform-origin: top left;
+    }
+    .site-poll-iframe-scale iframe {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .site-poll .about-note-inner {
+      padding: 14px 16px 12px;
+    }
+
     /* ── Browse / filters (UI TBD) ── */
     .filters-section {
       padding: 28px 24px 8px;
@@ -810,7 +841,7 @@
       transform: scale(1.05);
     }
     .tweet-card-actions button:focus-visible {
-      outline: 3px solid rgba(209, 104, 163, 0.45);
+      outline: 3px solid #d168a373;
       outline-offset: 1px;
     }
     .action-want.is-on {
@@ -1232,6 +1263,17 @@
 
 <div class="divider"></div>
 
+<!-- Site poll: Google Form embed -->
+<section class="about-note site-poll" id="site-poll" aria-label="Enquete Arquivo Loquinha AU">
+  <div class="about-note-inner">
+    <div class="site-poll-embed">
+      <div class="site-poll-iframe-scale">
+        <iframe id="site-poll-iframe" title="Enquete Arquivo Loquinha AU" loading="lazy" src="about:blank"></iframe>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- Browse -->
 <section class="filters-section" id="tweets">
   <div class="filters-header">
@@ -1396,6 +1438,10 @@ const LANG_STORAGE = "loquinha-lang";
 /** Bump this ISO date (YYYY-MM-DD) when you change the tweet list. */
 const ARCHIVE_LAST_UPDATED = "2026-05-23";
 
+/** Google Form embed URL. Set to "" to hide the poll section. */
+const POLL_FORM_EMBED_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSdgl_Duc-aAgFQpPSnQBck9FBHK4NgziqAo0nvIDe5BEa4DRA/viewform?embedded=true";
+
 const MESSAGES = {
   pt: {
     pageTitle: "Loquinha AU's ❤️🧡🤍🩷",
@@ -1469,6 +1515,7 @@ const MESSAGES = {
     paginationPage: "Página {n}",
     readingLocalToastText:
       "Quero ler e Lido ficam salvos só neste navegador e neste aparelho (não sincronizam com outros dispositivos nem com contas).",
+    pollFormIframeTitle: "Enquete Arquivo Loquinha AU",
     notifyText: "Falta um AU nesta página? Manda um tweet pra slappepolsen :)",
     notifyBtn: "🐦 Tweetar para adicionar um AU",
     infoLinksHeading: "Links",
@@ -1560,6 +1607,7 @@ const MESSAGES = {
     paginationPage: "Page {n}",
     readingLocalToastText:
       "Want to read and Read are saved only in this browser on this device (they do not sync across other devices or accounts).",
+    pollFormIframeTitle: "Loquinha AU archive poll",
     notifyText: "AU missing from this page? Send a tweet to slappepolsen :)",
     notifyBtn: "🐦 Tweet to add an AU",
     infoLinksHeading: "Links",
@@ -1641,6 +1689,7 @@ function applyStaticI18n() {
   document.getElementById("tag-filter-tags")?.setAttribute("aria-label", tr("drawerTagsAria"));
   const notifyLink = document.getElementById("notify-intent-link");
   if (notifyLink) notifyLink.href = notifyIntentHref();
+  syncPollSection();
   document.title = tr("pageTitle");
   document.getElementById("back-to-top")?.setAttribute("aria-label", tr("backToTopAria"));
   document.getElementById("reading-filter-row")?.setAttribute("aria-label", tr("readingFilterGroupAria"));
@@ -3348,11 +3397,9 @@ function showEmbedFallback(wrap) {
   wrap.classList.add("tweet-embed-failed");
 }
 
-function loadEmbedForArticle(article) {
-  if (!article || article.dataset.embedLoaded === "1") return;
-  const wrap = article.querySelector(".tweet-embed-wrap");
-  if (!wrap) return;
-  article.dataset.embedLoaded = "1";
+function loadEmbedForWrap(wrap) {
+  if (!wrap || wrap.dataset.embedLoaded === "1") return;
+  wrap.dataset.embedLoaded = "1";
   wrap.classList.add("tweet-embed-pending");
   wrap.classList.remove("tweet-embed-failed");
 
@@ -3387,6 +3434,35 @@ function loadEmbedForArticle(article) {
       if (!wrap.querySelector("iframe")) showEmbedFallback(wrap);
     }
   });
+}
+
+function loadEmbedForArticle(article) {
+  if (!article || article.dataset.embedLoaded === "1") return;
+  const wrap = article.querySelector(".tweet-embed-wrap");
+  if (!wrap) return;
+  article.dataset.embedLoaded = "1";
+  loadEmbedForWrap(wrap);
+}
+
+function syncPollSection() {
+  const section = document.getElementById("site-poll");
+  const iframe = document.getElementById("site-poll-iframe");
+  const url = String(POLL_FORM_EMBED_URL || "").trim();
+  if (!section) return;
+  if (!url) {
+    section.hidden = true;
+    return;
+  }
+  section.hidden = false;
+  section.setAttribute("aria-label", tr("pollFormIframeTitle"));
+  if (iframe) {
+    iframe.title = tr("pollFormIframeTitle");
+    if (iframe.src !== url) iframe.src = url;
+  }
+}
+
+function initPollSection() {
+  syncPollSection();
 }
 
 /** Eagerly loads every card on the current page — no IntersectionObserver. */
@@ -3758,6 +3834,7 @@ initShuffleControls();
 initPagination();
 syncReadingFilterPills();
 initBackToTop();
+initPollSection();
 render();
 </script>
 </body>
