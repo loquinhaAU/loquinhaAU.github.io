@@ -275,69 +275,6 @@
       border-radius: 4px;
     }
 
-    /* ── Site poll (Google Form — link first; embed only on request) ── */
-    .site-poll {
-      --poll-scale: 0.8;
-      --poll-view-height: 365px;
-      max-width: 640px;
-      margin: 0 auto 28px;
-      padding: 0 24px;
-    }
-    .site-poll-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-      text-align: center;
-    }
-    .site-poll-intro,
-    .site-poll-hint {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    .site-poll-hint {
-      margin-top: 12px;
-      margin-bottom: 0;
-      font-size: 0.82rem;
-    }
-    .site-poll-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-bottom: 4px;
-    }
-    .site-poll-embed {
-      border-radius: var(--radius);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: #fff;
-      height: var(--poll-view-height);
-      margin-top: 14px;
-    }
-    .site-poll-embed[hidden] {
-      display: none;
-    }
-    .site-poll-iframe-scale {
-      width: calc(100% / var(--poll-scale));
-      height: calc(var(--poll-view-height) / var(--poll-scale));
-      transform: scale(var(--poll-scale));
-      transform-origin: top left;
-    }
-    .site-poll-iframe-scale iframe {
-      display: block;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-    .site-poll .about-note-inner {
-      padding: 14px 16px 12px;
-    }
-
     /* ── Browse / filters (UI TBD) ── */
     .filters-section {
       padding: 28px 24px 8px;
@@ -678,7 +615,7 @@
     .results-count strong { color: var(--text); }
     .last-updated {
       font-size: 0.78rem;
-      color: var(--text-light);
+      color: var(--text-muted);
       margin: 0;
       line-height: 1.4;
     }
@@ -1295,24 +1232,6 @@
 
 <div class="divider"></div>
 
-<!-- Site poll: Google Form (opens in new tab; optional in-page embed) -->
-<section class="about-note site-poll" id="site-poll" aria-label="Enquete Arquivo Loquinha AU">
-  <div class="about-note-inner">
-    <h2 class="site-poll-title" data-i18n="pollTitle">Enquete do arquivo</h2>
-    <p class="site-poll-intro" data-i18n="pollIntro">Responda à enquete do arquivo Loquinha AU. Abrimos em uma nova aba para evitar erro do Google após você já ter respondido.</p>
-    <div class="site-poll-actions">
-      <a class="btn btn-primary" id="site-poll-open" href="#" target="_blank" rel="noopener noreferrer" data-i18n="pollOpenBtn">Responder enquete</a>
-      <button type="button" class="btn btn-ghost" id="site-poll-embed-toggle" aria-expanded="false" data-i18n="pollEmbedBtn">Mostrar aqui na página</button>
-    </div>
-    <p class="site-poll-hint" id="site-poll-embed-hint" hidden data-i18n="pollEmbedHint">Se aparecer “403” ou “sem acesso”, você já respondeu — use “Responder enquete” (nova aba).</p>
-    <div class="site-poll-embed" id="site-poll-embed-wrap" hidden>
-      <div class="site-poll-iframe-scale">
-        <iframe id="site-poll-iframe" title="Enquete Arquivo Loquinha AU" loading="lazy" src="about:blank"></iframe>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- Browse -->
 <section class="filters-section" id="tweets">
   <div class="filters-header">
@@ -1477,11 +1396,6 @@ const LANG_STORAGE = "loquinha-lang";
 /** Bump this ISO date (YYYY-MM-DD) when you change the tweet list. */
 const ARCHIVE_LAST_UPDATED = "2026-08-09";
 
-/** Google Form base URL. Set to "" to hide the poll section. */
-const POLL_FORM_VIEW_URL =
-  "https://docs.google.com/forms/d/e/1FAIpQLSdgl_Duc-aAgFQpPSnQBck9FBHK4NgziqAo0nvIDe5BEa4DRA/viewform";
-const POLL_FORM_EMBED_URL = POLL_FORM_VIEW_URL ? POLL_FORM_VIEW_URL + "?embedded=true" : "";
-
 const MESSAGES = {
   pt: {
     pageTitle: "Loquinha AU's ❤️🧡🤍🩷",
@@ -1555,15 +1469,6 @@ const MESSAGES = {
     paginationPage: "Página {n}",
     readingLocalToastText:
       "Quero ler e Lido ficam salvos só neste navegador e neste aparelho (não sincronizam com outros dispositivos nem com contas).",
-    pollFormIframeTitle: "Enquete Arquivo Loquinha AU",
-    pollTitle: "Enquete do arquivo",
-    pollIntro:
-      "Responda à enquete do arquivo Loquinha AU. Abrimos em uma nova aba para evitar erro do Google depois que você já respondeu.",
-    pollOpenBtn: "Responder enquete",
-    pollEmbedBtn: "Mostrar aqui na página",
-    pollEmbedBtnHide: "Ocultar formulário",
-    pollEmbedHint:
-      "Se aparecer “403” ou “sem acesso”, você já respondeu — use “Responder enquete” (nova aba).",
     notifyText: "Falta um AU nesta página? Manda um tweet pra slappepolsen :)",
     notifyBtn: "🐦 Tweetar para adicionar um AU",
     infoLinksHeading: "Links",
@@ -1655,15 +1560,6 @@ const MESSAGES = {
     paginationPage: "Page {n}",
     readingLocalToastText:
       "Want to read and Read are saved only in this browser on this device (they do not sync across other devices or accounts).",
-    pollFormIframeTitle: "Loquinha AU archive poll",
-    pollTitle: "Archive poll",
-    pollIntro:
-      "Take the Loquinha AU archive poll. We open it in a new tab so Google does not show a 403 error after you have already submitted.",
-    pollOpenBtn: "Open poll",
-    pollEmbedBtn: "Show form on this page",
-    pollEmbedBtnHide: "Hide form",
-    pollEmbedHint:
-      "If you see “403” or “no access”, you have already responded — use “Open poll” (new tab).",
     notifyText: "AU missing from this page? Send a tweet to slappepolsen :)",
     notifyBtn: "🐦 Tweet to add an AU",
     infoLinksHeading: "Links",
@@ -1745,7 +1641,6 @@ function applyStaticI18n() {
   document.getElementById("tag-filter-tags")?.setAttribute("aria-label", tr("drawerTagsAria"));
   const notifyLink = document.getElementById("notify-intent-link");
   if (notifyLink) notifyLink.href = notifyIntentHref();
-  syncPollSection();
   document.title = tr("pageTitle");
   document.getElementById("back-to-top")?.setAttribute("aria-label", tr("backToTopAria"));
   document.getElementById("reading-filter-row")?.setAttribute("aria-label", tr("readingFilterGroupAria"));
@@ -3823,57 +3718,6 @@ function loadEmbedForArticle(article) {
   loadEmbedForWrap(wrap);
 }
 
-function syncPollSection() {
-  const section = document.getElementById("site-poll");
-  const iframe = document.getElementById("site-poll-iframe");
-  const openLink = document.getElementById("site-poll-open");
-  const embedToggle = document.getElementById("site-poll-embed-toggle");
-  const embedWrap = document.getElementById("site-poll-embed-wrap");
-  const embedHint = document.getElementById("site-poll-embed-hint");
-  const viewUrl = String(POLL_FORM_VIEW_URL || "").trim();
-  if (!section) return;
-  if (!viewUrl) {
-    section.hidden = true;
-    return;
-  }
-  section.hidden = false;
-  section.setAttribute("aria-label", tr("pollFormIframeTitle"));
-  if (openLink) openLink.href = viewUrl;
-  if (iframe) iframe.title = tr("pollFormIframeTitle");
-  if (embedToggle && embedWrap) {
-    const expanded = !embedWrap.hidden;
-    embedToggle.setAttribute("aria-expanded", expanded ? "true" : "false");
-    embedToggle.textContent = tr(expanded ? "pollEmbedBtnHide" : "pollEmbedBtn");
-    if (!expanded) {
-      if (iframe && iframe.src !== "about:blank") iframe.src = "about:blank";
-      if (embedHint) embedHint.hidden = true;
-    }
-  }
-}
-
-function initPollSection() {
-  syncPollSection();
-  const embedToggle = document.getElementById("site-poll-embed-toggle");
-  const embedWrap = document.getElementById("site-poll-embed-wrap");
-  const embedHint = document.getElementById("site-poll-embed-hint");
-  const iframe = document.getElementById("site-poll-iframe");
-  if (!embedToggle || !embedWrap || embedToggle.dataset.bound === "1") return;
-  embedToggle.dataset.bound = "1";
-  embedToggle.addEventListener("click", () => {
-    const show = embedWrap.hidden;
-    embedWrap.hidden = !show;
-    embedToggle.setAttribute("aria-expanded", show ? "true" : "false");
-    embedToggle.textContent = tr(show ? "pollEmbedBtnHide" : "pollEmbedBtn");
-    if (show) {
-      if (iframe && POLL_FORM_EMBED_URL) iframe.src = POLL_FORM_EMBED_URL;
-      if (embedHint) embedHint.hidden = false;
-    } else if (iframe) {
-      iframe.src = "about:blank";
-      if (embedHint) embedHint.hidden = true;
-    }
-  });
-}
-
 /** Eagerly loads every card on the current page — no IntersectionObserver. */
 function setupLazyEmbedsForPageArticles(pageSlice) {
   if (!pageSlice || pageSlice.length === 0) return;
@@ -4243,7 +4087,6 @@ initShuffleControls();
 initPagination();
 syncReadingFilterPills();
 initBackToTop();
-initPollSection();
 render();
 </script>
 </body>
